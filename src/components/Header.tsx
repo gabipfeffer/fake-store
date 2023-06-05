@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
-
+import Link from "next/link";
+import { useSession, signIn, signOut } from "next-auth/react";
 import {
   MagnifyingGlassIcon,
   ShoppingCartIcon,
   Bars3Icon,
 } from "@heroicons/react/24/outline";
-import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -16,14 +16,16 @@ export default function Header() {
       {/* TOP NAV*/}
       <div className={"flex items-center bg-amazon_blue flex-grow px-1 py-2"}>
         <div className={"mt-2 flex items-center flex-grow sm:flex-grow-0"}>
-          <Image
-            src={"https://links.papareact.com/f90"}
-            alt={"Logo"}
-            width={110}
-            height={40}
-            style={{ objectFit: "contain" }}
-            className={"cursor-pointer"}
-          />
+          <Link href={"/"}>
+            <Image
+              src={"https://links.papareact.com/f90"}
+              alt={"Logo"}
+              width={110}
+              height={40}
+              style={{ objectFit: "contain" }}
+              className={"cursor-pointer"}
+            />
+          </Link>
         </div>
 
         <div
@@ -57,7 +59,10 @@ export default function Header() {
             <p>Returns</p>
             <p className={"font-extrabold md:text-sm"}>& Orders</p>
           </div>
-          <div className={"relative link flex items-center"}>
+          <Link
+            href={"/checkout"}
+            className={"relative link flex items-center"}
+          >
             <span
               className={
                 "absolute top-0 right-0 md:right-7 h-4 w-4 bg-yellow-400 rounded-full text-black font-bold text-center"
@@ -69,7 +74,7 @@ export default function Header() {
             <p className={"font-extrabold md:text-sm hidden md:inline mt-2"}>
               Cart
             </p>
-          </div>
+          </Link>
         </div>
       </div>
 

@@ -24,7 +24,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={nunito.className}>
         <SessionProvider session={session}>
-          <main className={"flex flex-col h-full w-full"}>
+          <main className={`flex flex-col h-full w-full`}>
             <Header />
             {children}
           </main>
