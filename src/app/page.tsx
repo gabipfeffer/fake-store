@@ -10,7 +10,7 @@ export default async function Home() {
   const products: Product[] = await fetch(`${BASE_URL}/products`).then((res) =>
     res.json()
   );
-  console.log("products", products);
+
   return (
     <main
       className={`${nunito.className} max-w-screen-2xl mx-auto bg-gray-100`}
