@@ -1,4 +1,3 @@
-"use client";
 import { Product } from "../../typings";
 import Image from "next/image";
 import { useState } from "react";

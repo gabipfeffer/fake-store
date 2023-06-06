@@ -1,7 +1,7 @@
-"use client";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Image from "next/image";
+
 export default function Banner() {
   return (
     <div className={"relative"}>

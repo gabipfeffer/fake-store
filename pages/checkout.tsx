@@ -1,16 +1,15 @@
-"use client";
 import { Nunito } from "next/font/google";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 import { selectItems, selectTotal } from "src/slices/cartReducer";
-import { Product } from "../../../typings";
+import { Product } from "../typings";
 import CheckoutProduct from "src/components/CheckoutProduct";
 import { useSession } from "next-auth/react";
 import { USDollar } from "src/utils/currency";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
-export default async function CheckoutPage() {
+export default function CheckoutPage() {
   const items = useSelector(selectItems);
   const total = useSelector(selectTotal);
   const { data: session } = useSession();
