@@ -3,7 +3,9 @@ import { Product } from "../../typings";
 import Image from "next/image";
 import { useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
-import Currency from "react-currency-formatter";
+import { useDispatch } from "react-redux";
+import { addToCart } from "src/slices/cartReducer";
+import { USDollar } from "src/utils/currency";
 
 type Props = {
   product: Product;
@@ -11,6 +13,13 @@ type Props = {
 
 export default function ProductCard({ product }: Props) {
   const [hasPrime] = useState(Math.random() < 0.5);
+  const dispatch = useDispatch();
+
+  const addItemToCart = () => {
+    // @ts-ignore
+    dispatch(addToCart({ ...product, hasPrime }));
+  };
+
   return (
     <div className={"relative flex flex-col m-5 bg-white z-30 p-10"}>
       <p className={"absolute top-2 right-2 font-sx italic text-gray-400"}>
@@ -36,7 +45,7 @@ export default function ProductCard({ product }: Props) {
       <p className={"text-sm my-2 line-clamp-2"}>{product.description}</p>
 
       <div className={"mb-5"}>
-        <Currency quantity={product.price} currency={"USD"} />
+        <p>{USDollar.format(product.price)}</p>
       </div>
 
       {hasPrime && (
@@ -52,7 +61,9 @@ export default function ProductCard({ product }: Props) {
         </div>
       )}
 
-      <button className={"mt-auto button"}>Add to Cart</button>
+      <button className={"mt-auto button"} onClick={addItemToCart}>
+        Add to Cart
+      </button>
     </div>
   );
 }

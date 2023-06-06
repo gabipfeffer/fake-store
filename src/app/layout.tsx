@@ -3,7 +3,9 @@ import { Nunito } from "next/font/google";
 import { getServerSession } from "next-auth";
 import authOptions from "src/constants/authOptions";
 import SessionProvider from "src/components/SessionProvider";
+
 import Header from "src/components/Header";
+import ReduxProvider from "src/components/ReduxProvider";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -24,10 +26,12 @@ export default async function RootLayout({
     <html lang="en">
       <body className={nunito.className}>
         <SessionProvider session={session}>
-          <main className={`flex flex-col h-full w-full`}>
-            <Header />
-            {children}
-          </main>
+          <ReduxProvider>
+            <main className={`flex flex-col h-full w-full`}>
+              <Header />
+              {children}
+            </main>
+          </ReduxProvider>
         </SessionProvider>
       </body>
     </html>
