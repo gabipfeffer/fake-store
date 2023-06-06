@@ -19,7 +19,9 @@ export default function Home({
   );
 }
 
-export const getServerSideProps: GetServerSideProps<{}> = async () => {
+export const getServerSideProps: GetServerSideProps<{
+  products: Product[];
+}> = async () => {
   const BASE_URL = "https://fakestoreapi.com";
   const products: Product[] = await fetch(`${BASE_URL}/products`).then((res) =>
     res.json()
