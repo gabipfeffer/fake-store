@@ -7,7 +7,10 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const stripeSecret = process.env.STRIPE_SIGNING_SECRET;
 
 // Secure connection to FIREBASE from the backend
-const serviceAccount = require("../../../../permission.json");
+const serviceAccount = JSON.parse(
+  process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
+);
+
 const app = !admin.apps.length
   ? admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
@@ -35,8 +38,8 @@ const fulfillOrder = async (session) => {
     images: JSON.parse(session.metadata.images),
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   })
-    .then((order) =>
-      console.log(`SUCCESS: Order ${order.id} has been added to the DB`)
+    .then(() =>
+      console.log(`SUCCESS: Order ${session.id} has been added to the DB`)
     )
     .catch((err) =>
       console.error(

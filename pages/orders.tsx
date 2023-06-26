@@ -33,7 +33,6 @@ export default function Orders({ orders }) {
 export async function getServerSideProps(context) {
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
   const session = await getSession(context);
-  console.log("session", session);
 
   if (!session) {
     return {
