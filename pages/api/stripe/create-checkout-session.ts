@@ -41,10 +41,8 @@ export default async function handler(
       });
 
       res.status(200).json({ id: session.id });
-    } catch (err) {
-      if (err instanceof Error) {
-        res.status(err.statusCode || 500).json(err.message);
-      }
+    } catch (err: any) {
+      res.status(err.statusCode || 500).json(err.message);
     }
   } else {
     res.setHeader("Allow", "POST");
