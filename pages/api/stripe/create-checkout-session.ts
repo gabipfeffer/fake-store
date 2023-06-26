@@ -11,7 +11,7 @@ export default async function handler(
     try {
       const { items, email, mode, shipping_rate } = JSON.parse(req.body);
 
-      const transformedItems = items.map((item) => ({
+      const transformedItems = items.map((item: any) => ({
         quantity: 1,
         price_data: {
           currency: "usd",
