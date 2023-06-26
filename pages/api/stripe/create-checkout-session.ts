@@ -35,7 +35,7 @@ export default async function handler(
         automatic_tax: { enabled: true },
         metadata: {
           email,
-          images: JSON.stringify(items.map((item) => item.image)),
+          images: JSON.stringify(items.map((item: any) => item.image)),
         },
         shipping_address_collection: { allowed_countries: ["UY"] },
       });
