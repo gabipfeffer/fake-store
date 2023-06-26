@@ -1,3 +1,5 @@
+import { FieldValue } from "@firebase/firestore-types";
+
 export type Product = {
   id: number;
   title: string;
@@ -10,4 +12,13 @@ export type Product = {
     count: number;
   };
   hasPrime?: boolean;
+};
+
+export type Order = {
+  id: string;
+  amount: number;
+  amount_shipping: number;
+  images: string[];
+  timestamp: FieldValue;
+  items?: any[];
 };
