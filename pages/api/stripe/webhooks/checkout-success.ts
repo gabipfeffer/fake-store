@@ -29,7 +29,7 @@ const saveOrderToDb = async (session: any, order: Order) => {
     .set(order);
 };
 
-const fulfillOrder = async (session) => {
+const fulfillOrder = async (session: any) => {
   console.log("Fulfilling order", session.id);
   return saveOrderToDb(session, {
     id: session.id,
