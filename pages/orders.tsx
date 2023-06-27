@@ -3,10 +3,16 @@ import { getSession, useSession } from "next-auth/react";
 import moment from "moment";
 import db from "../firebase";
 import OrderCard from "src/components/OrderCard";
+import { Order } from "../typings";
+import { GetServerSidePropsContext } from "next";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
-export default function Orders({ orders }) {
+type Props = {
+  orders: Order[];
+};
+
+export default function Orders({ orders }: Props) {
   const { data: session } = useSession();
 
   return (
@@ -30,7 +36,7 @@ export default function Orders({ orders }) {
   );
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
   const session = await getSession(context);
 
@@ -47,19 +53,24 @@ export async function getServerSideProps(context) {
     .orderBy("timestamp", "desc")
     .get();
 
-  const orders = await Promise.all(
-    firebaseOrders.docs.map(async (order) => ({
-      id: order.id,
-      amount: order.data().amount,
-      amount_shipping: order.data().amount_shipping,
-      images: order.data().images,
-      timestamp: moment(order.data().timestamp.toDate()).unix(),
-      items: (
-        await stripe.checkout.sessions.listLineItems(order.id, {
-          limit: 100,
-        })
-      ).data,
-    }))
+  const orders: Awaited<Order>[] = await Promise.all(
+    firebaseOrders.docs.map(async (document) => {
+      const order = document.data() as Order;
+      //@ts-ignore
+      const timestamp = moment(order.timestamp.toDate()).unix();
+      return {
+        id: document.id,
+        amount: order.amount,
+        amount_shipping: order.amount_shipping,
+        images: order.images,
+        timestamp,
+        items: (
+          await stripe.checkout.sessions.listLineItems(document.id, {
+            limit: 100,
+          })
+        ).data,
+      };
+    })
   );
 
   return {

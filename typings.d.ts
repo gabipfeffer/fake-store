@@ -19,6 +19,6 @@ export type Order = {
   amount: number;
   amount_shipping: number;
   images: string[];
-  timestamp: FieldValue;
+  timestamp: number | FieldValue;
   items?: any[];
 };
