@@ -60,7 +60,7 @@ export default async function handler(
 
     try {
       event = stripe.webhooks.constructEvent(payload, sig, stripeSecret);
-    } catch (err) {
+    } catch (err: any) {
       res.status(err.statusCode || 400).json(`Webhook error: ${err.message}`);
     }
 
@@ -68,7 +68,9 @@ export default async function handler(
       const session = event.data.object;
       return fulfillOrder(session)
         .then(() => res.status(200).json({ id: session.id }))
-        .catch((err) => res.status(err.statusCode || 500).json(err.message));
+        .catch((err: any) =>
+          res.status(err.statusCode || 500).json(err.message)
+        );
     }
   } else {
     res.setHeader("Allow", "POST");
