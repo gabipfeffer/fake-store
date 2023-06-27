@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
@@ -9,17 +8,19 @@ import {
 } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
 import { selectItems } from "src/slices/cartReducer";
+import { useRouter } from "next/router";
 
 export default function Header() {
   const { data: session } = useSession();
   const items = useSelector(selectItems);
+  const router = useRouter();
 
   return (
     <header>
       {/* TOP NAV*/}
       <div className={"flex items-center bg-amazon_blue flex-grow px-1 py-2"}>
         <div className={"mt-2 flex items-center flex-grow sm:flex-grow-0"}>
-          <Link href={"/"}>
+          <Link href={"/"} className={"mr-2"}>
             <Image
               src={"https://links.papareact.com/f90"}
               alt={"Logo"}
@@ -58,7 +59,10 @@ export default function Header() {
             {session?.user ? <p>Hello {session.user.name}</p> : <p>Sign In</p>}
             <p className={"font-extrabold md:text-sm"}>Account & Lists</p>
           </div>
-          <div className={"link"}>
+          <div
+            className={"link"}
+            onClick={() => session && router.push("/orders")}
+          >
             <p>Returns</p>
             <p className={"font-extrabold md:text-sm"}>& Orders</p>
           </div>

@@ -1,4 +1,3 @@
-"use client";
 import { Product } from "../../typings";
 import Image from "next/image";
 import { StarIcon } from "@heroicons/react/24/solid";

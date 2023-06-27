@@ -6,13 +6,43 @@ import { Product } from "../typings";
 import CheckoutProduct from "src/components/CheckoutProduct";
 import { useSession } from "next-auth/react";
 import { USDollar } from "src/utils/currency";
+import { loadStripe } from "@stripe/stripe-js";
 
 const nunito = Nunito({ subsets: ["latin"] });
+
+const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
   const items = useSelector(selectItems);
   const total = useSelector(selectTotal);
   const { data: session } = useSession();
+
+  // TODO: Fetch Shipping options from Stripe for shipping payment
+
+  const createCheckoutSession = async () => {
+    const stripe = await stripePromise;
+
+    const response = await fetch("/api/stripe/create-checkout-session", {
+      method: "POST",
+      body: JSON.stringify({
+        items,
+        email: session?.user?.email,
+        // TODO: Change with subscription/one-time payment selector
+        mode: "payment",
+        // TODO: Change with shipping options selector
+        shipping_rate: "shr_1NLtK8GldcbwgI7WGoeqKcE1",
+      }),
+    });
+
+    const checkoutSession = await response.json();
+
+    const result = await stripe?.redirectToCheckout({
+      sessionId: checkoutSession.id,
+    });
+
+    // @ts-ignore
+    if (result.error) console.error(result?.error?.message);
+  };
 
   return (
     <main
@@ -51,6 +81,8 @@ export default function CheckoutPage() {
               </span>
             </h2>
             <button
+              onClick={createCheckoutSession}
+              role={"link"}
               disabled={!session}
               className={`button mt-2 ${
                 !session &&

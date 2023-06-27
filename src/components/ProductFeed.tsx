@@ -20,7 +20,7 @@ export default function ProductFeed({ products }: Props) {
         className={"md:col-span-full object-cover"}
         src={"https://links.papareact.com/dyz"}
         alt={"advert-banner"}
-        width={1500}
+        width={1600}
         height={600}
       />
       <div className={"md:col-span-2"}>
