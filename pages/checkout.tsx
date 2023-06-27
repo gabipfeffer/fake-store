@@ -10,7 +10,7 @@ import { loadStripe } from "@stripe/stripe-js";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
-const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY);
+const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY || "");
 
 export default function CheckoutPage() {
   const items = useSelector(selectItems);
