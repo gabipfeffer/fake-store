@@ -34,8 +34,8 @@ export default function CheckoutPage() {
       });
 
       return await response.json();
-    } catch (e) {
-      throw new Error(e.message);
+    } catch (err: any) {
+      throw new Error(err.message);
     }
   };
 
