@@ -7,12 +7,12 @@ import {
   Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useSelector } from "react-redux";
-import { selectItems } from "src/slices/cartReducer";
+import { selectQuantity } from "src/slices/cartReducer";
 import { useRouter } from "next/router";
 
 export default function Header() {
   const { data: session } = useSession();
-  const items = useSelector(selectItems);
+  const quantity = useSelector(selectQuantity);
   const router = useRouter();
 
   return (
@@ -66,16 +66,13 @@ export default function Header() {
             <p>Returns</p>
             <p className={"font-extrabold md:text-sm"}>& Orders</p>
           </div>
-          <Link
-            href={"/checkout"}
-            className={"relative link flex items-center"}
-          >
+          <Link href={"/cart"} className={"relative link flex items-center"}>
             <span
               className={
                 "absolute top-0 right-0 md:right-7 h-4 w-4 bg-yellow-400 rounded-full text-black font-bold text-center"
               }
             >
-              {items.length}
+              {quantity}
             </span>
             <ShoppingCartIcon className={"h-10"} />
             <p className={"font-extrabold md:text-sm hidden md:inline mt-2"}>

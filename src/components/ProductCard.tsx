@@ -4,19 +4,24 @@ import { useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { useDispatch } from "react-redux";
 import { addToCart } from "src/slices/cartReducer";
-import { USDollar } from "src/utils/currency";
+import { UYUPeso } from "src/utils/currency";
 
 type Props = {
   product: Product;
 };
 
 export default function ProductCard({ product }: Props) {
-  const [hasPrime] = useState(Math.random() < 0.5);
+  const [quantity, setQuantity] = useState(1);
   const dispatch = useDispatch();
 
   const addItemToCart = () => {
     // @ts-ignore
-    dispatch(addToCart({ ...product, hasPrime }));
+    dispatch(
+      addToCart({
+        quantity,
+        product,
+      })
+    );
   };
 
   return (
@@ -44,25 +49,27 @@ export default function ProductCard({ product }: Props) {
       <p className={"text-sm my-2 line-clamp-2"}>{product.description}</p>
 
       <div className={"mb-5"}>
-        <p>{USDollar.format(product.price)}</p>
+        <p>{UYUPeso.format(product.price)}</p>
       </div>
 
-      {hasPrime && (
-        <div className={"flex items-center space-x-2 -mt-5"}>
-          <Image
-            className={"w-12"}
-            src={"https://links.papareact.com/fdw"}
-            alt={"prime"}
-            width={300}
-            height={300}
+      <div className={"flex items-center justify-center space-x-2"}>
+        <label className={"flex items-center gap-2"}>
+          Quantity:{" "}
+          <input
+            type={"number"}
+            value={quantity}
+            min={1}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className={
+              "w-10 text-center p-2 bg-gray-100 rounded-lg focus:outline-none"
+            }
           />
-          <p className={"text-sm text-gray-500"}>FREE Next-day Delivery</p>
-        </div>
-      )}
+        </label>
 
-      <button className={"mt-auto button"} onClick={addItemToCart}>
-        Add to Cart
-      </button>
+        <button className={"mt-auto button flex-1"} onClick={addItemToCart}>
+          Add to Cart
+        </button>
+      </div>
     </div>
   );
 }

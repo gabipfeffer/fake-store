@@ -1,5 +1,5 @@
 import { Order } from "../../typings";
-import { USDollar } from "src/utils/currency";
+import { UYUPeso } from "src/utils/currency";
 import moment from "moment";
 
 type Props = {
@@ -22,8 +22,8 @@ export default function OrderCard({ order }: Props) {
         <div>
           <p className={"text-xs font-bold"}>TOTAL</p>
           <p>
-            {USDollar.format(order.amount)} - Next Day Delivery{" "}
-            {USDollar.format(order.amount_shipping)}
+            {UYUPeso.format(order.amount)} - Next Day Delivery{" "}
+            {UYUPeso.format(order.amount_shipping)}
           </p>
         </div>
         <p

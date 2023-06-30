@@ -33,4 +33,15 @@ body {
     focus:outline-none focus:ring-2 focus:ring-yellow-500
     active:from-yellow-500
   }
+
+  .secondaryButton {
+    @apply p-2 text-xs md:text-sm bg-gradient-to-b from-gray-200
+    to-gray-400 border border-gray-300 rounded-sm
+    focus:outline-none focus:ring-2 focus:ring-gray-500
+    active:from-gray-500
+  }
+
+  .input {
+    @apply rounded-lg p-2 w-[calc(100%-20px)] mx-auto border-gray-100 border-2 placeholder-gray-400 focus:outline-none
+  }
 }

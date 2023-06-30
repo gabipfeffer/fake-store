@@ -19,6 +19,7 @@ const nextConfig = {
   },
   env: {
     STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
+    PAYMENT_PROCESSOR: process.env.PAYMENT_PROCESSOR,
   },
 };
 

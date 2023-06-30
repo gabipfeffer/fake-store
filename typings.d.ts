@@ -11,7 +11,6 @@ export type Product = {
     rate: number;
     count: number;
   };
-  hasPrime?: boolean;
 };
 
 export type Order = {
@@ -21,4 +20,77 @@ export type Order = {
   images: string[];
   timestamp: number | FieldValue;
   items?: any[];
+};
+
+export type BambooAddress = {
+  Country: string;
+  City: string;
+  State: string;
+  PostalCode: string;
+  AddressDetail: string;
+};
+
+export type BambooCustomer = {
+  Email: string;
+  DocNumber: string;
+  PhoneNumber: string;
+  FirstName: string;
+  LastName: string;
+  DocumentTypeId: number;
+  ShippingAddress?: BambooAddress;
+  BillingAddress?: BambooAddress;
+};
+
+export type BambooCardDetails = {
+  CardHolderName: string;
+  Pan: string;
+  CVV: string;
+  Expiration: string;
+  Email: string;
+  Document: string;
+};
+
+export type CartItem = { quantity: number; product: Product };
+
+export type CartShipping = {
+  name: string;
+  price: number | string;
+};
+
+export type BambooPaymentData = {
+  Description: string;
+  Amount: number;
+  TaxableAmount: string;
+  Order: string;
+  Invoice: string;
+  ShippingAddress: {
+    Country: string;
+    City: string;
+    State: string;
+    PostalCode: string;
+    AddressDetail: string;
+  };
+  BillingAddress: {
+    Country: string;
+    City: string;
+    State: string;
+    PostalCode: string;
+    AddressDetail: string;
+  };
+  Customer: {
+    Email: string;
+    DocNumber: string;
+    PhoneNumber: string;
+    FirstName: string;
+    LastName: string;
+    DocumentTypeId: number;
+  };
+  CardData: {
+    CardHolderName: string;
+    Pan: string;
+    CVV: string;
+    Expiration: string;
+    Email: string;
+    Document: string;
+  };
 };

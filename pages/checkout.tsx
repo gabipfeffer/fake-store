@@ -1,96 +1,105 @@
 import { Nunito } from "next/font/google";
-import Image from "next/image";
-import { useSelector } from "react-redux";
-import { selectItems, selectTotal } from "src/slices/cartReducer";
-import { Product } from "../typings";
-import CheckoutProduct from "src/components/CheckoutProduct";
-import { useSession } from "next-auth/react";
-import { USDollar } from "src/utils/currency";
-import { loadStripe } from "@stripe/stripe-js";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectItems,
+  selectShipping,
+  selectSubtotal,
+  selectTotal,
+} from "src/slices/cartReducer";
+import { signIn, useSession } from "next-auth/react";
+import BambooPaymentForm from "src/components/BambooPaymentForms/BambooPaymentForm";
+import CheckoutSummary from "src/components/CheckoutSummary";
+import { BambooPaymentData } from "../typings";
+import { setLoader } from "src/slices/loaderReducer";
+import { useRouter } from "next/router";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
-const stripePromise = loadStripe(process.env.STRIPE_PUBLISHABLE_KEY || "");
-
 export default function CheckoutPage() {
+  const dispatch = useDispatch();
   const items = useSelector(selectItems);
+  const subtotal = useSelector(selectSubtotal);
+  const shipping = useSelector(selectShipping);
   const total = useSelector(selectTotal);
+  const router = useRouter();
   const { data: session } = useSession();
 
-  // TODO: Fetch Shipping options from Stripe for shipping payment
+  //TODO: Fetch shipping options from Admin Console DB
 
-  const createCheckoutSession = async () => {
-    const stripe = await stripePromise;
+  const processBambooPurchase = async (body: BambooPaymentData) => {
+    try {
+      const response = await fetch("/api/bamboo/purchase", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
 
-    const response = await fetch("/api/stripe/create-checkout-session", {
-      method: "POST",
-      body: JSON.stringify({
-        items,
-        email: session?.user?.email,
-        // TODO: Change with subscription/one-time payment selector
-        mode: "payment",
-        // TODO: Change with shipping options selector
-        shipping_rate: "shr_1NLtK8GldcbwgI7WGoeqKcE1",
-      }),
-    });
+      return await response.json();
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  };
 
-    const checkoutSession = await response.json();
+  const handlePayment = async (data: BambooPaymentData) => {
+    try {
+      // @ts-ignore
+      dispatch(setLoader(true));
+      const response = await processBambooPurchase(data);
 
-    const result = await stripe?.redirectToCheckout({
-      sessionId: checkoutSession.id,
-    });
-
-    // @ts-ignore
-    if (result.error) console.error(result?.error?.message);
+      // @ts-ignore
+      dispatch(setLoader(false));
+      if (response.Response.PurchaseId) {
+        router.push("/success");
+      } else {
+        //  TODO: purchase failed, Show Message
+      }
+    } catch (e) {
+      //  TODO: return error message (error handling o be determined)
+    }
   };
 
   return (
     <main
       className={`${nunito.className} max-w-screen-2xl mx-auto bg-gray-100 lg:flex`}
     >
-      {/*  LEFT */}
-      <div className={"flex-grow m-5 shadow-sm"}>
-        <Image
-          src={"https://links.papareact.com/ikj"}
-          className={"object-contain"}
-          alt={"checkout image"}
-          width={1220}
-          height={250}
-        />
-
-        <div className={"flex flex-col p-5 space-y-10 bg-white"}>
-          <h1 className={"text-3xl border-b pb-4"}>
-            {items.length === 0 ? "Your cart is empty" : "Your shopping basket"}
-          </h1>
-
-          {items.map((item: Product) => (
-            <CheckoutProduct key={item.id} product={item} />
-          ))}
-        </div>
-      </div>
-      {/*  RIGHT */}
-      <div className={"flex flex-col bg-white p-10 shadow-md"}>
-        {items.length > 0 && (
+      <div className={"flex flex-col-reverse w-full md:flex-row"}>
+        {/* LEFT SIDE CAPTURE INFO*/}
+        {!session ? (
+          <div
+            className={
+              "w-screen h-[calc(100vh-7rem)] flex items-center justify-center"
+            }
+          >
+            <p>
+              Por favor,{" "}
+              <span
+                onClick={() => signIn("google")}
+                className={
+                  "underline text-black cursor-pointer hover:scale-125"
+                }
+              >
+                inicia tu sesión
+              </span>{" "}
+              para finalizar tu pedido
+            </p>
+          </div>
+        ) : (
           <>
-            <h2 className={"whitespace-nowrap"}>
-              Subtotal ({items.length} items)
-              <span className={"font-bold"}>
-                <span>
-                  <p>{USDollar.format(total)}</p>
-                </span>
-              </span>
-            </h2>
-            <button
-              onClick={createCheckoutSession}
-              role={"link"}
-              disabled={!session}
-              className={`button mt-2 ${
-                !session &&
-                "from-gray-300 to-gray-500 border-gray-200 text-gray-300 cursor-not-allowed"
-              }`}
+            <div className={"bg-white w-full md:w-1/2"}>
+              <BambooPaymentForm handlePayment={handlePayment} />
+            </div>
+            {/*  RIGHT SIDE PRODUCTS*/}
+            <div
+              className={
+                "bg-gray-100 w-full md:w-1/2 p-5 md:p-10 mx-auto max-w-xl"
+              }
             >
-              {!session ? "Sign in to Checkout" : "Proceed to Checkout"}
-            </button>
+              <CheckoutSummary
+                items={items}
+                subtotal={subtotal}
+                shipping={shipping}
+                total={total}
+              />
+            </div>
           </>
         )}
       </div>
