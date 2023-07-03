@@ -7,7 +7,7 @@ import { persistReducer } from "redux-persist";
 
 export interface CartState {
   items: CartItem[];
-  shipping?: CartShipping;
+  shipping: CartShipping;
 }
 
 const initialState: CartState = {
