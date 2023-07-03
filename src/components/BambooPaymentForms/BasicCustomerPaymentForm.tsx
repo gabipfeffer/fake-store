@@ -3,7 +3,9 @@ import { documentTypes, shippingLocations } from "src/constants/bamboo";
 import { BambooAddress, BambooCustomer } from "../../../typings";
 import { useRouter } from "next/router";
 
-export default function BasicCustomerPaymentForm({ goToNext, data }) {
+type Props = { goToNext?: (data: any) => void; data?: any };
+
+export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
   const router = useRouter();
   const [customerData, setCustomerData] = useState<BambooCustomer>(
     data.Customer
@@ -147,7 +149,10 @@ export default function BasicCustomerPaymentForm({ goToNext, data }) {
         <button
           className={`${!goToNext && "hidden"} button`}
           onClick={() =>
-            goToNext({ Customer: customerData, ShippingAddress: shippingData })
+            goToNext?.({
+              Customer: customerData,
+              ShippingAddress: shippingData,
+            })
           }
         >
           Continuar al Envío

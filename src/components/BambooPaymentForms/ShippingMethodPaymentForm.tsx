@@ -5,7 +5,16 @@ import { UYUPeso } from "src/utils/currency";
 import { useDispatch, useSelector } from "react-redux";
 import { selectShipping, updatedShippingMethod } from "src/slices/cartReducer";
 
-export default function ShippingMethodPaymentForm({ goToNext, goToPrevious }) {
+type Props = {
+  goToNext?: (data?: any) => void;
+  goToPrevious?: () => void;
+  data?: any;
+};
+
+export default function ShippingMethodPaymentForm({
+  goToNext,
+  goToPrevious,
+}: Props) {
   const dispatch = useDispatch();
   const shipping = useSelector(selectShipping);
   const [selectedShipping, setSelectedShipping] =
@@ -63,7 +72,7 @@ export default function ShippingMethodPaymentForm({ goToNext, goToPrevious }) {
         </button>
         <button
           className={`${!goToNext && "hidden"} button`}
-          onClick={() => goToNext()}
+          onClick={() => goToNext?.()}
         >
           Continuar al Método de Pago
         </button>

@@ -3,11 +3,17 @@ import { BambooAddress, BambooCardDetails } from "../../../typings";
 import { shippingLocations } from "src/constants/bamboo";
 import { formatCCExpDate, formatCCNumber } from "src/utils/payment";
 
+type Props = {
+  onFinish?: (data: any) => void;
+  goToPrevious?: () => void;
+  data?: any;
+};
+
 export default function CardDetailsPaymentForm({
   onFinish,
   goToPrevious,
   data,
-}) {
+}: Props) {
   const [cardData, setCardData] = useState<BambooCardDetails>(data.CardData);
   const [billingData, setBillingData] = useState<BambooAddress>(
     data.BillingAddress
@@ -105,10 +111,10 @@ export default function CardDetailsPaymentForm({
             type="checkbox"
             defaultChecked={billingSameAsShipping}
             className={"mr-2"}
-            onClick={(event) =>
+            onClick={(event) => {
               // @ts-ignore
-              setBillingSameAsShipping(event.target.checked)
-            }
+              setBillingSameAsShipping(event.target.checked);
+            }}
           />
           Misma dirección que el envío
         </label>
@@ -170,7 +176,7 @@ export default function CardDetailsPaymentForm({
         <button
           className={`${!onFinish && "hidden"} button`}
           onClick={() =>
-            onFinish({
+            onFinish?.({
               ...data,
               CardData: cardData,
               BillingAddress: billingSameAsShipping
