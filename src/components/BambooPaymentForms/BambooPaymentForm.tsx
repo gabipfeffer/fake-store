@@ -12,7 +12,7 @@ import {
 import { useSession } from "next-auth/react";
 
 type Props = {
-  handlePayment: (data) => void;
+  handlePayment: (data: any) => void;
 };
 
 export default function BambooPaymentForm({ handlePayment }: Props) {
