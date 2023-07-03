@@ -10,18 +10,12 @@ import { usePathname } from "next/navigation";
 
 export default function App({ Component, pageProps }: AppProps) {
   const pathname = usePathname();
-  const noHeaderPaths = [
-    "/admin",
-    "/admin/orders",
-    "/admin/products",
-    "/admin/settings",
-  ];
 
   return (
     <SessionProvider session={pageProps.session}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          {!noHeaderPaths.includes(pathname) && <Header />}
+          {!pathname.includes("/admin") && <Header />}
           <Loader />
           <Component {...pageProps} />
         </PersistGate>

@@ -7,7 +7,7 @@ import {
 import { NavItem } from "../../typings";
 
 export const adminNavigation: NavItem[] = [
-  { url: "/admin", title: "Dashboard", icon: HomeIcon },
+  { url: "/admin/dashboard", title: "Dashboard", icon: HomeIcon },
   { url: "/admin/orders", title: "Orders", icon: QueueListIcon },
   { url: "/admin/products", title: "Products", icon: ArchiveBoxIcon },
   { url: "/admin/settings", title: "Settings", icon: CogIcon },

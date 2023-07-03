@@ -11,7 +11,7 @@ export default function AdminNav({ navigation }: Props) {
   const pathname = usePathname();
   return (
     <aside className={"text-white"}>
-      <Link href={"/admin"} className={"inactiveAdminNavLink"}>
+      <Link href={"/admin/dashboard"} className={"inactiveAdminNavLink"}>
         <BuildingStorefrontIcon className={"h-6"} />
         <span>eCommerce Admin</span>
       </Link>
@@ -23,7 +23,7 @@ export default function AdminNav({ navigation }: Props) {
               key={navItem.url}
               href={navItem.url}
               className={
-                pathname === navItem.url
+                pathname.includes(navItem.url)
                   ? "activeAdminNavLink"
                   : "inactiveAdminNavLink"
               }
