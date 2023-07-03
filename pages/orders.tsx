@@ -5,6 +5,7 @@ import db from "../firebase";
 import OrderCard from "src/components/OrderCard";
 import { Order } from "../typings";
 import { GetServerSidePropsContext } from "next";
+import { getUserByEmail } from "src/utils/firestore";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -39,6 +40,7 @@ export default function Orders({ orders }: Props) {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
   const session = await getSession(context);
+  const user = await getUserByEmail(session?.user?.email!);
 
   if (!session) {
     return {
@@ -48,7 +50,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
 
   const firebaseOrders = await db
     .collection("users")
-    .doc(session.user?.email!)
+    .doc(user?.id)
     .collection("orders")
     .orderBy("timestamp", "desc")
     .get();

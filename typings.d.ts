@@ -1,5 +1,13 @@
 import { FieldValue } from "@firebase/firestore-types";
 
+export type User = {
+  id: string;
+  name: string;
+  emailVerified: boolean | null;
+  email: string;
+  image: string;
+};
+
 export type Product = {
   id: number;
   title: string;

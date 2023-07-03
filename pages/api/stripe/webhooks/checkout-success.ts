@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import { Order } from "../../../../typings";
 import * as admin from "firebase-admin";
+import { getUserByEmail } from "src/utils/firestore";
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const stripeSecret = process.env.STRIPE_SIGNING_SECRET;
@@ -19,11 +20,12 @@ const app = !admin.apps.length
 
 // TODO: Replace mock fn with real fn
 const saveOrderToDb = async (session: any, order: Order) => {
+  const user = await getUserByEmail(session.metadata.email);
   console.log("Saving order to DB", session.id);
   return app
     .firestore()
     .collection("users")
-    .doc(session.metadata.email)
+    .doc(user?.id)
     .collection("orders")
     .doc(order.id)
     .set(order);
