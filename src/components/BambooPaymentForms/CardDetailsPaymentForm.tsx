@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { BambooAddress, BambooCardDetails } from "../../../typings";
 import { shippingLocations } from "src/constants/bamboo";
 import { formatCCExpDate, formatCCNumber } from "src/utils/payment";
@@ -32,11 +32,15 @@ export default function CardDetailsPaymentForm({
     setAvailableCities(cities);
   }, [billingData?.State]);
 
-  const handleCardDataInputChange = (e) => {
+  const handleCardDataInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setCardData({ ...cardData, [e.target.name]: e.target.value });
   };
 
-  const handleBillingDataInputChange = (e) => {
+  const handleBillingDataInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setBillingData({ ...billingData, [e.target.name]: e.target.value });
   };
 
