@@ -1,4 +1,7 @@
 import { FieldValue } from "@firebase/firestore-types";
+import { ReactNode } from "react";
+
+export type NavItem = { url: string; title: string; icon: ReactNode };
 
 export type User = {
   id: string;

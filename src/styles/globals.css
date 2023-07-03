@@ -44,4 +44,12 @@ body {
   .input {
     @apply rounded-lg p-2 w-[calc(100%-20px)] mx-auto border-gray-100 border-2 placeholder-gray-400 focus:outline-none
   }
+
+  .inactiveAdminNavLink {
+    @apply flex items-center gap-2 mr-4 p-2
+  }
+
+  .activeAdminNavLink {
+    @apply flex items-center gap-2 bg-white text-gray-900 rounded-l-lg p-2
+  }
 }
