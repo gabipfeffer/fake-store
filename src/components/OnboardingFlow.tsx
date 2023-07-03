@@ -18,7 +18,7 @@ export default function OnboardingFlow({
   data,
 }: OnboardingFlowProps) {
   const currentChild = React.Children.toArray(children)[currentIndex];
-  const goToNext = (stepData) => {
+  const goToNext = (stepData: any) => {
     onNext(stepData);
   };
 
@@ -29,9 +29,13 @@ export default function OnboardingFlow({
   if (React.isValidElement(currentChild)) {
     // @ts-ignore
     return React.cloneElement(currentChild, {
+      //@ts-ignore
       goToPrevious: currentIndex !== 0 ? goToPrevious : undefined,
-      goToNext: currentIndex !== children.length - 1 ? goToNext : undefined,
-      onFinish: currentIndex === children.length - 1 ? onFinish : undefined,
+      //@ts-ignore
+      goToNext: currentIndex !== children?.length - 1 ? goToNext : undefined,
+      //@ts-ignore
+      onFinish: currentIndex === children?.length - 1 ? onFinish : undefined,
+      //@ts-ignore
       data,
     });
   }
