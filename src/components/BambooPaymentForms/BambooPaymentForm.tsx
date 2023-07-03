@@ -23,10 +23,8 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
   const { data: session } = useSession();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paymentData, setPaymentData] = useState({
-    Description: `Shipping: ${shipping.name} - ${
-      shipping.price
-    } || Productos: ${items
-      .map((item) => `Cantidad: ${item.quantity}: ID: ${item.product.id}`)
+    Description: `Envío: ${shipping.name} - ${shipping.price} | Items: ${items
+      .map((item) => `Cantidad: ${item.quantity}, ID: ${item.product.id}`)
       .join(", ")}`,
     Amount: total * 100,
     TaxableAmount: Math.ceil(total * 0.22 * 100).toString(),
