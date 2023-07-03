@@ -75,7 +75,7 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
     setCurrentIndex(currentIndex - 1);
   };
 
-  const onFinish = (data) => handlePayment(data);
+  const onFinish = (data: any) => handlePayment(data);
 
   return (
     <div
