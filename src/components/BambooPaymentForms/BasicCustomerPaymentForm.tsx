@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { documentTypes, shippingLocations } from "src/constants/bamboo";
 import { BambooAddress, BambooCustomer } from "../../../typings";
 import { useRouter } from "next/router";
@@ -26,11 +26,15 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
     setAvailableCities(cities);
   }, [shippingData?.State]);
 
-  const handleShippingDataInputChange = (e) => {
+  const handleShippingDataInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setShippingData({ ...shippingData, [e.target.name]: e.target.value });
   };
 
-  const handleCustomerDataInputChange = (e) => {
+  const handleCustomerDataInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setCustomerData({ ...customerData, [e.target.name]: e.target.value });
   };
 
@@ -111,7 +115,7 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
           placeholder={"Departamento"}
           value={shippingData.State}
         >
-          {shippingLocations.UY.map((state) => (
+          {shippingLocations.UY.map((state: { name: string; code: string }) => (
             <option key={state.code} value={state.name}>
               {state.name}
             </option>
@@ -124,7 +128,7 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
           placeholder={"Localidad"}
           value={shippingData.City}
         >
-          {availableCities?.map((city) => (
+          {availableCities?.map((city: string) => (
             <option key={city} value={city}>
               {city}
             </option>
