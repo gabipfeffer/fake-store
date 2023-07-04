@@ -5,7 +5,7 @@ import { getProducts } from "src/utils/firestore";
 import { Product, SortDirection } from "../../../typings";
 import { ChangeEvent, useState } from "react";
 import { UYUPeso } from "src/utils/currency";
-import { PencilIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { searchProperties } from "src/constants/product";
 import { ProductStatus } from "../../../enums";
 
@@ -146,7 +146,7 @@ export default function ProductsPage({
                 )}
               </button>
             </td>
-            <td>Edit</td>
+            <td></td>
           </tr>
         </thead>
         <tbody className={"border"}>
@@ -164,9 +164,12 @@ export default function ProductsPage({
               <td>
                 <span>{ProductStatus[product.status]}</span>
               </td>
-              <td>
+              <td className={"flex items-center gap-2"}>
                 <Link href={`/admin/products/${product.id}`}>
                   <PencilIcon className={"w-5 h-5"} /> Edit
+                </Link>
+                <Link href={`/admin/products/${product.id}/delete`}>
+                  <TrashIcon className={"w-5 h-5"} /> Delete
                 </Link>
               </td>
             </tr>

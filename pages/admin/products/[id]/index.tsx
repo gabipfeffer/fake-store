@@ -1,6 +1,6 @@
 import AdminLayout from "src/components/AdminLayout";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Product } from "../../../typings";
+import { Product } from "../../../../typings";
 import { setLoader } from "src/slices/loaderReducer";
 import { useDispatch } from "react-redux";
 import ProductForm from "src/components/ProductForm";

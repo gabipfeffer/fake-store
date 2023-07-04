@@ -120,3 +120,11 @@ export const updateProduct = async (
     throw new Error(`Error updating product: ${e.message}`);
   }
 };
+
+export const deleteProduct = async (productId: string): Promise<any> => {
+  try {
+    return app.firestore().collection("products").doc(productId).delete();
+  } catch (e: any) {
+    throw new Error(`Error deleting product: ${e.message}`);
+  }
+};
