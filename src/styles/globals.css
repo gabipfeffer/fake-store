@@ -34,6 +34,13 @@ body {
     active:from-yellow-500
   }
 
+  .adminButton {
+    @apply p-2 text-xs md:text-sm bg-gradient-to-b from-gray-200
+    to-gray-400 border border-gray-300 rounded-full
+    focus:outline-none focus:ring-2 focus:ring-gray-500
+    active:from-gray-500
+  }
+
   .secondaryButton {
     @apply p-2 text-xs md:text-sm bg-gradient-to-b from-gray-200
     to-gray-400 border border-gray-300 rounded-sm
@@ -45,6 +52,10 @@ body {
     @apply rounded-lg p-2 w-[calc(100%-20px)] mx-auto border-gray-100 border-2 placeholder-gray-400 focus:outline-none
   }
 
+  .input:focus {
+    @apply border-gray-700
+  }
+
   .inactiveAdminNavLink {
     @apply flex items-center gap-2 mr-4 p-2
   }
@@ -52,4 +63,25 @@ body {
   .activeAdminNavLink {
     @apply flex items-center gap-2 bg-white text-gray-900 rounded-l-lg p-2
   }
+
+  .adminLabel {
+    @apply text-gray-700
+  }
+
+}
+
+table.productsTable {
+  @apply w-full mt-4
+}
+
+table.productsTable thead tr td {
+  @apply bg-gray-200 border
+}
+
+table.productsTable tr td {
+  @apply border border-gray-300 p-1
+}
+
+table.productsTable a {
+  @apply bg-gray-700 text-white py-2 px-3 rounded-md gap-1 inline-flex items-center
 }

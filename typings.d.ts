@@ -1,7 +1,13 @@
 import { FieldValue } from "@firebase/firestore-types";
 import { ReactNode } from "react";
 
-export type NavItem = { url: string; title: string; icon: ReactNode };
+export type SortDirection = "asc" | "desc";
+
+export type NavItem = {
+  url: string;
+  title: string;
+  icon: ReactNode;
+};
 
 export type User = {
   id: string;
@@ -12,13 +18,16 @@ export type User = {
 };
 
 export type Product = {
-  id: number;
+  id: string;
   title: string;
   price: number;
   description: string;
   category: string;
   image: string;
-  rating: {
+  status: "active" | "inactive";
+  last_updated_at: number | FieldValue;
+  created_at: number | FieldValue;
+  rating?: {
     rate: number;
     count: number;
   };
@@ -31,6 +40,7 @@ export type Order = {
   images: string[];
   timestamp: number | FieldValue;
   items?: any[];
+  user_id: string;
 };
 
 export type BambooAddress = {
