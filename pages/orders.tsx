@@ -1,19 +1,15 @@
 import { Nunito } from "next/font/google";
 import { getSession, useSession } from "next-auth/react";
-import moment from "moment";
-import db from "../firebase";
 import OrderCard from "src/components/OrderCard";
 import { Order } from "../typings";
-import { GetServerSidePropsContext } from "next";
-import { getUserByEmail } from "src/utils/firestore";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { getOrdersByUserId, getUserByEmail } from "src/utils/firestore";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
-type Props = {
-  orders: Order[];
-};
-
-export default function Orders({ orders }: Props) {
+export default function Orders({
+  orders,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession();
 
   return (
@@ -40,34 +36,21 @@ export default function Orders({ orders }: Props) {
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
   const session = await getSession(context);
-  const user = await getUserByEmail(session?.user?.email!);
-
   if (!session) {
     return {
       props: {},
     };
   }
 
-  const firebaseOrders = await db
-    .collection("users")
-    .doc(user?.id)
-    .collection("orders")
-    .orderBy("timestamp", "desc")
-    .get();
+  const user = await getUserByEmail(session?.user?.email!);
+  const firebaseOrders = await getOrdersByUserId(user.id);
 
-  const orders: Awaited<Order>[] = await Promise.all(
-    firebaseOrders.docs.map(async (document) => {
-      const order = document.data() as Order;
-      //@ts-ignore
-      const timestamp = moment(order.timestamp.toDate()).unix();
+  const orders: Order[] = await Promise.all(
+    firebaseOrders.map(async (order) => {
       return {
-        id: document.id,
-        amount: order.amount,
-        amount_shipping: order.amount_shipping,
-        images: order.images,
-        timestamp,
+        ...order,
         items: (
-          await stripe.checkout.sessions.listLineItems(document.id, {
+          await stripe.checkout.sessions.listLineItems(order.id, {
             limit: 100,
           })
         ).data,
