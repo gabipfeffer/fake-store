@@ -20,7 +20,10 @@ export type User = {
 export type Product = {
   id: string;
   title: string;
+  images?: { name: string; imageUrl: string }[];
   price: number;
+  inventory: number;
+  ranking: number;
   description: string;
   category: string;
   image: string;

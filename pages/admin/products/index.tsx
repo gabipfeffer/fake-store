@@ -146,6 +146,26 @@ export default function ProductsPage({
                 )}
               </button>
             </td>
+            <td>
+              <button onClick={() => sortColumn("ranking")}>
+                Ranking{" "}
+                {currentSortKey === "ranking" && (
+                  <span className="pl-1">
+                    {sortDirection === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
+              </button>
+            </td>
+            <td>
+              <button onClick={() => sortColumn("inventory")}>
+                Inventory{" "}
+                {currentSortKey === "inventory" && (
+                  <span className="pl-1">
+                    {sortDirection === "asc" ? "↑" : "↓"}
+                  </span>
+                )}
+              </button>
+            </td>
             <td></td>
           </tr>
         </thead>
@@ -163,6 +183,12 @@ export default function ProductsPage({
               </td>
               <td>
                 <span>{ProductStatus[product.status]}</span>
+              </td>
+              <td>
+                <span>{product.ranking}</span>
+              </td>
+              <td>
+                <span>{product.inventory}</span>
               </td>
               <td className={"flex items-center gap-2"}>
                 <Link href={`/admin/products/${product.id}`}>

@@ -94,7 +94,14 @@ export const getProductById = async (id: string): Promise<Product> => {
   const last_updated_at = formatFireStoreDate(product.last_updated_at);
   const created_at = formatFireStoreDate(product.created_at);
 
-  return { ...product, created_at, last_updated_at };
+  const images = await getProductImages(product.id);
+
+  return {
+    ...product,
+    created_at,
+    last_updated_at,
+    images: images || [],
+  };
 };
 
 export const createProduct = async (
@@ -126,5 +133,86 @@ export const deleteProduct = async (productId: string): Promise<any> => {
     return app.firestore().collection("products").doc(productId).delete();
   } catch (e: any) {
     throw new Error(`Error deleting product: ${e.message}`);
+  }
+};
+
+export const uploadFiles = async (
+  files: any
+): Promise<Awaited<{ name: string; imageUrl: string }[]>[]> => {
+  try {
+    const bucket = app
+      .storage()
+      .bucket(`${serviceAccount.project_id}.appspot.com`);
+
+    return Promise.all(
+      Object.values(files).map(async ([file]) => {
+        const uploadedFile = await bucket
+          .upload(file.path, {
+            destination: file.fieldName,
+          })
+          .then(([uploadedFile]) => uploadedFile);
+
+        return getFilesSignedUrls(uploadedFile.name);
+      })
+    );
+  } catch (e: any) {
+    throw new Error(`Error uploading files: ${e.message}`);
+  }
+};
+
+export const getProductImages = async (
+  productId: string
+): Promise<{ name: string; imageUrl: string }[]> => {
+  try {
+    const bucket = app
+      .storage()
+      .bucket(`${serviceAccount.project_id}.appspot.com`);
+
+    return bucket
+      .getFiles({
+        prefix: productId,
+      })
+      .then((files) => {
+        return Promise.all(
+          files?.[0]?.map(async (file) => getFilesSignedUrls(file.name))
+        );
+      });
+  } catch (e: any) {
+    throw new Error(`Error getting product images: ${e.message}`);
+  }
+};
+
+export const getFilesSignedUrls = async (
+  fileName: string
+): Promise<{ name: string; imageUrl: string }[]> => {
+  try {
+    const bucket = app
+      .storage()
+      .bucket(`${serviceAccount.project_id}.appspot.com`);
+
+    const file = bucket.file(fileName);
+    return await file
+      .getSignedUrl({
+        action: "read",
+        expires: "03-09-2030",
+      })
+      .then(([signedUrl]) => ({
+        name: fileName,
+        imageUrl: signedUrl,
+      }));
+  } catch (e: any) {
+    throw new Error(`Error get signed URLs for files: ${e.message}`);
+  }
+};
+
+export const deleteFile = (name: string) => {
+  try {
+    return app
+      .storage()
+      .bucket(`${serviceAccount.project_id}.appspot.com`)
+      .file(name)
+      .delete();
+  } catch (e: any) {
+    throw new Error(`Error deleting file ${name}: ${e.message}`);
   }
 };

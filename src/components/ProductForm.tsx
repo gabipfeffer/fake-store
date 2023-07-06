@@ -1,16 +1,28 @@
 import Link from "next/link";
 import { Product } from "../../typings";
 import { ChangeEvent, FormEvent } from "react";
+import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 type Props = {
   product: Partial<Product>;
   onSubmit: (e: FormEvent) => void;
   onChange: (e: ChangeEvent) => void;
+  onImageChange: (e: ChangeEvent) => void;
+  onImageDelete: (fileName: string) => void;
 };
 
-export default function ProductForm({ product, onSubmit, onChange }: Props) {
+export default function ProductForm({
+  product,
+  onSubmit,
+  onChange,
+  onImageChange,
+  onImageDelete,
+}: Props) {
   return (
-    <form onSubmit={onSubmit} className={"max-w-md flex flex-col space-y-3"}>
+    <form
+      onSubmit={onSubmit}
+      className={"max-w-md flex flex-col space-y-3 w-full"}
+    >
       <label className={"adminLabel"}>
         Title
         <input
@@ -35,6 +47,42 @@ export default function ProductForm({ product, onSubmit, onChange }: Props) {
         />
       </label>
       <label className={"adminLabel"}>
+        Images
+        <label
+          className={
+            "cursor-pointer w-24 h-24 flex flex-col items-center justify-center text-gray-500 rounded-md bg-gray-200"
+          }
+        >
+          <ArrowDownTrayIcon className={"w-8 h-8"} />
+          Upload
+          <input
+            type={"file"}
+            multiple
+            className={"hidden"}
+            onChange={onImageChange}
+          />
+        </label>
+      </label>
+      <div className={"flex items-center space-x-5 mt-5 w-full"}>
+        {product?.images?.map((image) => (
+          <div key={image.name} className={"relative"}>
+            <img
+              src={image.imageUrl}
+              alt={image.name}
+              className={"w-40 h-40 object-cover"}
+            />
+            <button onClick={() => onImageDelete(image.name)}>
+              <TrashIcon
+                className={
+                  "w-6 h-6 absolute -top-2 -right-2 bg-white rounded-full p-1"
+                }
+              />
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <label className={"adminLabel"}>
         Price
         <input
           required={true}
@@ -42,6 +90,18 @@ export default function ProductForm({ product, onSubmit, onChange }: Props) {
           type={"text"}
           name={"price"}
           value={product?.price}
+          className={"input"}
+          onChange={onChange}
+        />
+      </label>
+      <label className={"adminLabel"}>
+        Inventory
+        <input
+          required={true}
+          placeholder={"Inventory"}
+          type={"number"}
+          name={"inventory"}
+          value={product?.inventory}
           className={"input"}
           onChange={onChange}
         />
@@ -69,6 +129,18 @@ export default function ProductForm({ product, onSubmit, onChange }: Props) {
           <option value={"inactive"}>Inactive</option>
           <option value={"active"}>Active</option>
         </select>
+      </label>
+      <label className={"adminLabel"}>
+        Ranking
+        <input
+          required={true}
+          placeholder={"Ranking"}
+          type={"number"}
+          name={"ranking"}
+          value={product?.ranking}
+          className={"input"}
+          onChange={onChange}
+        />
       </label>
       <div className={"flex items-center justify-center gap-2"}>
         <Link href={"/admin/products"} className={"adminButton"}>

@@ -10,15 +10,13 @@ import ProductForm from "src/components/ProductForm";
 export default function NewProductPage() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [newProduct, setNewProduct] = useState<Partial<Product> | undefined>(
-    undefined
-  );
+  const [product, setProduct] = useState<Partial<Product>>({ id: uuidv4() });
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const prop = e.target.name as keyof Product;
-    setNewProduct({ ...newProduct, [prop]: e.target.value });
+    setProduct({ ...product, [prop]: e.target.value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {
@@ -27,12 +25,11 @@ export default function NewProductPage() {
       // @ts-ignore
       dispatch(setLoader(true));
 
-      const id = uuidv4();
       const createdProductResponse: { id: string } = await fetch(
         "/api/products",
         {
           method: "POST",
-          body: JSON.stringify({ product: { ...newProduct, id } }),
+          body: JSON.stringify({ product }),
         }
       ).then((res: any) => res.json());
 
@@ -47,13 +44,68 @@ export default function NewProductPage() {
     }
   };
 
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target?.files;
+
+    if (files?.length > 0) {
+      const formData = new FormData();
+      for (const file of files) {
+        formData.append(`${product?.id}/${file.name}`, file);
+      }
+
+      const options = {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      delete options.headers["Content-Type"];
+      const response: { name: string; imageUrl: string }[] = await fetch(
+        "/api/file",
+        options
+      ).then((res) => res.json());
+
+      setProduct({
+        ...product,
+        images: product?.images?.length
+          ? [...product?.images, ...response]
+          : response,
+      });
+    }
+  };
+
+  const handleImageDelete = async (fileName: string) => {
+    try {
+      const response = await fetch(`/api/file?file=${fileName}`, {
+        method: "DELETE",
+      }).then((res) => res.json());
+
+      if (response) {
+        const deletedImageIndex = product?.images?.findIndex(
+          (image) => image.name === fileName
+        );
+
+        const images = [...product?.images];
+        images.splice(deletedImageIndex, 1);
+
+        setProduct({ ...product, images });
+      }
+    } catch (e: Error) {
+      alert(`Error deleting image: ${e.message}`);
+    }
+  };
+
   return (
     <AdminLayout>
       <h1 className={"py-4 text-xl text-gray-900"}>New Product</h1>
       <ProductForm
-        product={newProduct}
+        product={product}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
+        onImageChange={handleImageChange}
+        onImageDelete={handleImageDelete}
       />
     </AdminLayout>
   );

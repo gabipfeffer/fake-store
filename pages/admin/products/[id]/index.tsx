@@ -48,6 +48,63 @@ export default function ProductPage({
     }
   };
 
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      const files = e.target?.files;
+
+      if (files?.length > 0) {
+        const formData = new FormData();
+        for (const file of files) {
+          formData.append(`${product.id}/${file.name}`, file);
+        }
+
+        const options = {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+        delete options.headers["Content-Type"];
+
+        const response: { name: string; imageUrl: string }[] = await fetch(
+          "/api/file",
+          options
+        ).then((res) => res.json());
+
+        setProduct({
+          ...product,
+          images: product?.images?.length
+            ? [...product?.images, ...response]
+            : response,
+        });
+      }
+    } catch (e: Error) {
+      alert(`Error uploading image: ${e.message}`);
+    }
+  };
+
+  const handleImageDelete = async (fileName: string) => {
+    try {
+      const response = await fetch(`/api/file?file=${fileName}`, {
+        method: "DELETE",
+      }).then((res) => res.json());
+
+      if (response) {
+        const deletedImageIndex = product.images?.findIndex(
+          (image) => image.name === fileName
+        );
+
+        const images = [...product.images];
+        images.splice(deletedImageIndex, 1);
+
+        setProduct({ ...product, images });
+      }
+    } catch (e: Error) {
+      alert(`Error deleting image: ${e.message}`);
+    }
+  };
+
   return (
     <AdminLayout>
       <h1 className={"py-4 text-xl text-gray-900"}>{product.title}</h1>
@@ -55,6 +112,8 @@ export default function ProductPage({
         product={product}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
+        onImageChange={handleImageChange}
+        onImageDelete={handleImageDelete}
       />
     </AdminLayout>
   );
