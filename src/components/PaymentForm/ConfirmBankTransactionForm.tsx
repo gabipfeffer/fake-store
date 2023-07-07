@@ -50,7 +50,9 @@ export default function ConfirmBankTransactionForm({
         </button>
         <button
           className={`${!onFinish && "hidden"} button`}
-          onClick={() => onFinish?.(data)}
+          onClick={() =>
+            onFinish?.({ ...data, authorization_data: authorizationData })
+          }
         >
           Confirmar Pedido
         </button>
