@@ -3,6 +3,8 @@ import db from "../../firebase";
 import * as admin from "firebase-admin";
 import moment from "moment/moment";
 import { FieldValue } from "@firebase/firestore-types";
+import { firestore } from "firebase-admin";
+import WriteResult = firestore.WriteResult;
 
 const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
@@ -19,7 +21,9 @@ const formatFireStoreDate = (date: number | FieldValue) => {
   return moment(date?.toDate?.()).unix();
 };
 
-export const getUserByEmail = async (email: string): Promise<User> => {
+export const getUserByEmail = async (
+  email: string
+): Promise<User | undefined> => {
   let user = undefined;
   const userSnapshots = await db
     .collection("users")
@@ -62,51 +66,57 @@ export const getOrdersByUserId = async (id: string): Promise<Order[]> => {
 };
 
 export const getProducts = async (): Promise<Product[]> => {
-  const productsSnapshots = await db
-    .collection("products")
-    .orderBy("title", "desc")
-    .get();
+  try {
+    const productsSnapshots = await db
+      .collection("products")
+      .orderBy("title", "desc")
+      .get();
 
-  return await Promise.all(
-    productsSnapshots.docs.map(async (document) => {
-      const product = document.data() as Product;
-      const last_updated_at = formatFireStoreDate(product.last_updated_at);
-      const created_at = formatFireStoreDate(product.created_at);
+    return await Promise.all(
+      productsSnapshots.docs.map(async (document) => {
+        const product = document.data() as Product;
+        const last_updated_at = formatFireStoreDate(product.last_updated_at);
+        const created_at = formatFireStoreDate(product.created_at);
 
-      return {
-        id: document.id,
-        ...product,
-        last_updated_at,
-        created_at,
-      };
-    })
-  );
+        return {
+          ...product,
+          id: document.id,
+          last_updated_at,
+          created_at,
+        };
+      })
+    );
+  } catch (e: any) {
+    throw new Error(`Error fetching products: ${e.message}`);
+  }
 };
 
 export const getProductById = async (id: string): Promise<Product> => {
-  const productSnapshot = await db.collection("products").doc(id).get();
+  try {
+    const productSnapshot = await db.collection("products").doc(id).get();
 
-  if (!productSnapshot.exists) {
-    return;
+    if (!productSnapshot.exists) {
+      throw new Error(`Product snapshot does not exist`);
+    }
+
+    const product = productSnapshot.data() as Product;
+    const last_updated_at = formatFireStoreDate(product.last_updated_at);
+    const created_at = formatFireStoreDate(product.created_at);
+
+    const images = await getProductImages(product.id);
+
+    return {
+      ...product,
+      created_at,
+      last_updated_at,
+      images: images || [],
+    };
+  } catch (e: any) {
+    throw new Error(`Error fetching product by id: ${e.message}`);
   }
-
-  const product = productSnapshot.data() as Product;
-  const last_updated_at = formatFireStoreDate(product.last_updated_at);
-  const created_at = formatFireStoreDate(product.created_at);
-
-  const images = await getProductImages(product.id);
-
-  return {
-    ...product,
-    created_at,
-    last_updated_at,
-    images: images || [],
-  };
 };
 
-export const createProduct = async (
-  product: Product
-): Promise<Product | undefined> => {
+export const createProduct = async (product: Product): Promise<WriteResult> => {
   try {
     return app.firestore().collection("products").doc(product?.id).set(product);
   } catch (e: any) {
@@ -114,9 +124,7 @@ export const createProduct = async (
   }
 };
 
-export const updateProduct = async (
-  product: Product
-): Promise<Product | undefined> => {
+export const updateProduct = async (product: Product): Promise<WriteResult> => {
   try {
     return app
       .firestore()
@@ -138,21 +146,21 @@ export const deleteProduct = async (productId: string): Promise<any> => {
 
 export const uploadFiles = async (
   files: any
-): Promise<Awaited<{ name: string; imageUrl: string }[]>[]> => {
+): Promise<Awaited<{ name: string; imageUrl: string }>[]> => {
   try {
     const bucket = app
       .storage()
       .bucket(`${serviceAccount.project_id}.appspot.com`);
 
     return Promise.all(
-      Object.values(files).map(async ([file]) => {
+      Object.values(files).map(async ([file]: any) => {
         const uploadedFile = await bucket
           .upload(file.path, {
             destination: file.fieldName,
           })
           .then(([uploadedFile]) => uploadedFile);
 
-        return getFilesSignedUrls(uploadedFile.name);
+        return getFileSignedUrl(uploadedFile.name);
       })
     );
   } catch (e: any) {
@@ -174,7 +182,7 @@ export const getProductImages = async (
       })
       .then((files) => {
         return Promise.all(
-          files?.[0]?.map(async (file) => getFilesSignedUrls(file.name))
+          files?.[0]?.map(async (file: any) => getFileSignedUrl(file.name))
         );
       });
   } catch (e: any) {
@@ -182,9 +190,9 @@ export const getProductImages = async (
   }
 };
 
-export const getFilesSignedUrls = async (
+export const getFileSignedUrl = async (
   fileName: string
-): Promise<{ name: string; imageUrl: string }[]> => {
+): Promise<{ name: string; imageUrl: string }> => {
   try {
     const bucket = app
       .storage()

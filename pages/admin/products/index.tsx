@@ -17,32 +17,32 @@ export default function ProductsPage({
   const [currentSortKey, setCurrentSortKey] = useState<keyof Product | null>(
     null
   );
-  const [activeSearchFilter, setActiveSearchFilter] = useState<string>(
+  const [activeSearchFilter, setActiveSearchFilter] = useState<keyof Product>(
     searchProperties[0].name
   );
 
-  const filterProducts = (searchInput: string) => {
+  const filterProducts = (searchInput: keyof Product) => {
     if (!searchInput.length) {
       setProducts(initialProducts);
     }
 
     if (activeSearchFilter) {
-      const filteredList = initialProducts.filter((product: Product) =>
-        product[activeSearchFilter]
-          .toLowerCase()
-          .includes(searchInput.toLowerCase())
-      );
+      const filteredList = initialProducts.filter((product: Product) => {
+        const propValue: any = product[activeSearchFilter];
+
+        return propValue.toLowerCase().includes(searchInput.toLowerCase());
+      });
       setProducts(filteredList);
     }
   };
 
-  const sortColumn = (sortKey: keyof Product) => {
+  const sortColumn = (sortKey: keyof Product): void => {
     setCurrentSortKey(sortKey);
     const sortedProducts = [...products];
 
     sortedProducts.sort((a, b) => {
-      const relevantValueA = a[sortKey];
-      const relevantValueB = b[sortKey];
+      const relevantValueA = a[sortKey] || "";
+      const relevantValueB = b[sortKey] || "";
 
       if (currentSortKey === sortKey) {
         if (sortDirection === "desc") {
@@ -59,6 +59,7 @@ export default function ProductsPage({
         if (relevantValueA > relevantValueB) return 1;
         return 0;
       }
+      return 0;
     });
 
     if (currentSortKey === sortKey) {
@@ -86,13 +87,13 @@ export default function ProductsPage({
             className={"input"}
             type={"text"}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              filterProducts(e.target.value)
+              filterProducts(e.target.value as keyof Product)
             }
           />
           <select
             className={"input w-auto"}
             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-              setActiveSearchFilter(event.target.value)
+              setActiveSearchFilter(event.target.value as keyof Product)
             }
           >
             {searchProperties.map((searchProp) => (

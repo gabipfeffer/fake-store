@@ -9,7 +9,7 @@ export default async function handler(
   if (req.method === "POST") {
     try {
       const form = new multiparty.Form();
-      const { files } = await new Promise((resolve, reject) => {
+      const { files }: { files: any } = await new Promise((resolve, reject) => {
         form.parse(req, (err, fields, files) => {
           if (err) reject(err);
           resolve({ files });

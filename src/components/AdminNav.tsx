@@ -28,6 +28,7 @@ export default function AdminNav({ navigation }: Props) {
                   : "inactiveAdminNavLink"
               }
             >
+              {/* @ts-ignore */}
               <Icon className={"h-6"} /> {navItem.title}
             </Link>
           );

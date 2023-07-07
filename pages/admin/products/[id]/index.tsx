@@ -43,7 +43,7 @@ export default function ProductPage({
       }
       // @ts-ignore
       dispatch(setLoader(false));
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error creating product: ${e.message}`);
     }
   };
@@ -52,13 +52,17 @@ export default function ProductPage({
     try {
       const files = e.target?.files;
 
-      if (files?.length > 0) {
+      if (files?.length && files?.length > 0) {
         const formData = new FormData();
         for (const file of files) {
           formData.append(`${product.id}/${file.name}`, file);
         }
 
-        const options = {
+        const options: {
+          method: string;
+          body: any;
+          headers: { "Content-Type"?: string };
+        } = {
           method: "POST",
           body: formData,
           headers: {
@@ -79,7 +83,7 @@ export default function ProductPage({
             : response,
         });
       }
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error uploading image: ${e.message}`);
     }
   };
@@ -100,7 +104,7 @@ export default function ProductPage({
 
         setProduct({ ...product, images });
       }
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error deleting image: ${e.message}`);
     }
   };
@@ -122,7 +126,7 @@ export default function ProductPage({
 export const getStaticProps = async (
   context: GetStaticPropsContext<{ id: string }>
 ) => {
-  const product: Product = await getProductById(context.params.id);
+  const product: Product = await getProductById(context?.params?.id!);
   return {
     props: {
       product,

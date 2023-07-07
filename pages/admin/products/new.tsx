@@ -39,7 +39,7 @@ export default function NewProductPage() {
       // @ts-ignore
       dispatch(setLoader(false));
       router.push(`/admin/products/${createdProductResponse.id}`);
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error creating product: ${e.message}`);
     }
   };
@@ -47,13 +47,17 @@ export default function NewProductPage() {
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target?.files;
 
-    if (files?.length > 0) {
+    if (files?.length && files?.length > 0) {
       const formData = new FormData();
       for (const file of files) {
         formData.append(`${product?.id}/${file.name}`, file);
       }
 
-      const options = {
+      const options: {
+        method: string;
+        body: any;
+        headers: { "Content-Type"?: string };
+      } = {
         method: "POST",
         body: formData,
         headers: {
@@ -83,16 +87,18 @@ export default function NewProductPage() {
       }).then((res) => res.json());
 
       if (response) {
-        const deletedImageIndex = product?.images?.findIndex(
+        const deletedImageIndex = product.images?.findIndex(
           (image) => image.name === fileName
         );
 
-        const images = [...product?.images];
-        images.splice(deletedImageIndex, 1);
+        if (product.images?.length && deletedImageIndex) {
+          const images = [...product.images];
+          images.splice(deletedImageIndex, 1);
 
-        setProduct({ ...product, images });
+          setProduct({ ...product, images });
+        }
       }
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error deleting image: ${e.message}`);
     }
   };

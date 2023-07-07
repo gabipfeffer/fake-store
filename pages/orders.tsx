@@ -19,7 +19,7 @@ export default function Orders({
       </h1>
       {session ? (
         <h2>
-          {orders.length} Order{orders.length > 1 && "s"}
+          {orders?.length} Order{orders?.length && orders?.length > 1 && "s"}
         </h2>
       ) : (
         <h2>Please sign in to see your orders.</h2>
@@ -43,7 +43,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   const user = await getUserByEmail(session?.user?.email!);
-  const firebaseOrders = await getOrdersByUserId(user.id);
+  const firebaseOrders = await getOrdersByUserId(user?.id!);
 
   const orders: Order[] = await Promise.all(
     firebaseOrders.map(async (order) => {

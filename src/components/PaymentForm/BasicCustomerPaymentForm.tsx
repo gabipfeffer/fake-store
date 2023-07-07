@@ -1,17 +1,15 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { documentTypes, shippingLocations } from "src/constants/bamboo";
-import { BambooAddress, BambooCustomer } from "../../../typings";
+import { Address, Customer } from "../../../typings";
 import { useRouter } from "next/router";
 
 type Props = { goToNext?: (data: any) => void; data?: any };
 
 export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
   const router = useRouter();
-  const [customerData, setCustomerData] = useState<BambooCustomer>(
-    data.Customer
-  );
-  const [shippingData, setShippingData] = useState<BambooAddress>(
-    data.ShippingAddress
+  const [customerData, setCustomerData] = useState<Customer>(data?.Customer);
+  const [shippingData, setShippingData] = useState<Address>(
+    data?.ShippingAddress
   );
   const [availableCities, setAvailableCities] = useState(
     shippingLocations.UY.find((state) => state.name === shippingData?.State)
@@ -54,7 +52,7 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
           onChange={handleCustomerDataInputChange}
           className={"input"}
           name={"FirstName"}
-          value={customerData.FirstName}
+          value={customerData?.FirstName}
         />
         <input
           type={"text"}
@@ -62,14 +60,14 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
           onChange={handleCustomerDataInputChange}
           className={"input"}
           name={"LastName"}
-          value={customerData.LastName}
+          value={customerData?.LastName}
         />
         <select
           className={"input"}
           onChange={handleCustomerDataInputChange}
           name={"DocumentTypeId"}
           placeholder={"Tipo de Documento"}
-          value={customerData.DocumentTypeId}
+          value={customerData?.DocumentTypeId}
         >
           {documentTypes.UY.map((type) => (
             <option key={type.code} value={type.code}>
@@ -83,14 +81,14 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
           onChange={handleCustomerDataInputChange}
           className={"input"}
           name={"DocNumber"}
-          value={customerData.DocNumber}
+          value={customerData?.DocNumber}
         />
         <input
           type={"text"}
           placeholder={"Número de Teléfono"}
           onChange={handleCustomerDataInputChange}
           name={"PhoneNumber"}
-          value={customerData.PhoneNumber}
+          value={customerData?.PhoneNumber}
           className={"input"}
         />
       </div>
@@ -159,7 +157,7 @@ export default function BasicCustomerPaymentForm({ goToNext, data }: Props) {
             })
           }
         >
-          Continuar al Envío
+          Continuar
         </button>
       </div>
     </div>

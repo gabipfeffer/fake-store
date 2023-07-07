@@ -16,6 +16,11 @@ const saveOrderToDb = async (order: Order) => {
 const fulfillOrder = async (session: any) => {
   console.log("Fulfilling order", session.id);
   const user = await getUserByEmail(session.metadata.email);
+
+  if (!user)
+    throw new Error(
+      `User ${session.metadata.email} associated to order was not found on DB`
+    );
   return saveOrderToDb({
     id: session.id,
     amount: session.amount_total / 100,

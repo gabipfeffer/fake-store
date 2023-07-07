@@ -6,8 +6,10 @@ import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/24/solid";
 type Props = {
   product: Partial<Product>;
   onSubmit: (e: FormEvent) => void;
-  onChange: (e: ChangeEvent) => void;
-  onImageChange: (e: ChangeEvent) => void;
+  onChange: (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void;
+  onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onImageDelete: (fileName: string) => void;
 };
 

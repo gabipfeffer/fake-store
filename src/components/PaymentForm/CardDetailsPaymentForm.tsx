@@ -1,10 +1,10 @@
 import { ChangeEvent, useEffect, useState } from "react";
-import { BambooAddress, BambooCardDetails } from "../../../typings";
+import { Address, BambooCardDetails, PaymentData } from "../../../typings";
 import { shippingLocations } from "src/constants/bamboo";
 import { formatCCExpDate, formatCCNumber } from "src/utils/payment";
 
 type Props = {
-  onFinish?: (data: any) => void;
+  onFinish?: (data: PaymentData) => void;
   goToPrevious?: () => void;
   data?: any;
 };
@@ -15,9 +15,7 @@ export default function CardDetailsPaymentForm({
   data,
 }: Props) {
   const [cardData, setCardData] = useState<BambooCardDetails>(data.CardData);
-  const [billingData, setBillingData] = useState<BambooAddress>(
-    data.BillingAddress
-  );
+  const [billingData, setBillingData] = useState<Address>(data.BillingAddress);
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(false);
   const [availableCities, setAvailableCities] = useState(
     shippingLocations.UY.find((state) => state.name === billingData?.State)

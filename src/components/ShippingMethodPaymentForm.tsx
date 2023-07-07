@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { shippingMethods } from "src/constants/bamboo";
-import { CartShipping } from "../../../typings";
+import { CartShipping } from "../../typings";
 import { UYUPeso } from "src/utils/currency";
 import { useDispatch, useSelector } from "react-redux";
 import { selectShipping, updatedShippingMethod } from "src/slices/cartReducer";
@@ -74,7 +74,7 @@ export default function ShippingMethodPaymentForm({
           className={`${!goToNext && "hidden"} button`}
           onClick={() => goToNext?.()}
         >
-          Continuar al Método de Pago
+          Continuar
         </button>
       </div>
     </div>

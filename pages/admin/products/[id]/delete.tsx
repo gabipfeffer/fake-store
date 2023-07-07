@@ -35,7 +35,7 @@ export default function DeleteProductPage({
       // @ts-ignore
       dispatch(setLoader(false));
       router.push(`/admin/products`);
-    } catch (e: Error) {
+    } catch (e: any) {
       alert(`Error creating product: ${e.message}`);
     }
   };
@@ -62,7 +62,7 @@ export default function DeleteProductPage({
 export const getStaticProps = async (
   context: GetStaticPropsContext<{ id: string }>
 ) => {
-  const product: Product = await getProductById(context.params.id);
+  const product: Product = await getProductById(context?.params?.id!);
   return {
     props: {
       product,
@@ -77,7 +77,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: products.map((product: Product) => ({
       params: {
-        id: `${product.id}/delete`,
+        id: product.id,
       },
     })),
     fallback: "blocking",

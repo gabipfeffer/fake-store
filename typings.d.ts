@@ -1,12 +1,18 @@
 import { FieldValue } from "@firebase/firestore-types";
-import { ReactNode } from "react";
+import { ForwardRefExoticComponent, RefAttributes, SVGProps } from "react";
+import { BankAccount } from "@stripe/stripe-js";
 
 export type SortDirection = "asc" | "desc";
 
 export type NavItem = {
   url: string;
   title: string;
-  icon: ReactNode;
+  icon: ForwardRefExoticComponent<
+    Omit<SVGProps<SVGSVGElement>, "ref"> & {
+      title?: string | undefined;
+      titleId?: string | undefined;
+    } & RefAttributes<SVGSVGElement>
+  >;
 };
 
 export type User = {
@@ -20,7 +26,7 @@ export type User = {
 export type Product = {
   id: string;
   title: string;
-  images?: { name: string; imageUrl: string }[];
+  images: { name: string; imageUrl: string }[];
   price: number;
   inventory: number;
   ranking: number;
@@ -46,7 +52,26 @@ export type Order = {
   user_id: string;
 };
 
-export type BambooAddress = {
+export type PrometeoBankLogin = {
+  username: string;
+  rut?: string;
+  password: string;
+};
+
+export type PrometeoSession = {
+  key: string;
+  status: string;
+};
+export type PrometeoBankAccount = {
+  balance: number;
+  branch: string;
+  currency: string;
+  id: string;
+  name: string;
+  number: string;
+};
+
+export type Address = {
   Country: string;
   City: string;
   State: string;
@@ -54,15 +79,15 @@ export type BambooAddress = {
   AddressDetail: string;
 };
 
-export type BambooCustomer = {
+export type Customer = {
   Email: string;
   DocNumber: string;
   PhoneNumber: string;
   FirstName: string;
   LastName: string;
   DocumentTypeId: number;
-  ShippingAddress?: BambooAddress;
-  BillingAddress?: BambooAddress;
+  ShippingAddress?: Address;
+  BillingAddress?: Address;
 };
 
 export type BambooCardDetails = {
@@ -81,40 +106,34 @@ export type CartShipping = {
   price: number | string;
 };
 
-export type BambooPaymentData = {
+export type CardData = {
+  CardHolderName: string;
+  Pan: string;
+  CVV: string;
+  Expiration: string;
+  Email: string;
+  Document: string;
+};
+
+export type PaymentType = "bank_transfer" | "card";
+
+export type PaymentData = {
   Description: string;
   Amount: number;
   TaxableAmount: string;
   Order: string;
   Invoice: string;
-  ShippingAddress: {
-    Country: string;
-    City: string;
-    State: string;
-    PostalCode: string;
-    AddressDetail: string;
-  };
-  BillingAddress: {
-    Country: string;
-    City: string;
-    State: string;
-    PostalCode: string;
-    AddressDetail: string;
-  };
-  Customer: {
-    Email: string;
-    DocNumber: string;
-    PhoneNumber: string;
-    FirstName: string;
-    LastName: string;
-    DocumentTypeId: number;
-  };
-  CardData: {
-    CardHolderName: string;
-    Pan: string;
-    CVV: string;
-    Expiration: string;
-    Email: string;
-    Document: string;
-  };
+  PaymentType: PaymentType;
+  ShippingAddress: Address;
+  BillingAddress: Address;
+  Customer: Customer;
+  CardData?: CardData;
+  session?: PrometeoSession;
+  accounts?: BankAccount[];
+  request_id?: string;
+  pre_process_approved?: string;
+  account?: BankAccount;
+  authorization_type: string;
+  authorization_data: string;
+  authorization_device_number: string;
 };

@@ -7,11 +7,11 @@ import {
   selectTotal,
 } from "src/slices/cartReducer";
 import { signIn, useSession } from "next-auth/react";
-import BambooPaymentForm from "src/components/BambooPaymentForms/BambooPaymentForm";
 import CheckoutSummary from "src/components/CheckoutSummary";
-import { BambooPaymentData } from "../typings";
+import { PaymentData } from "../typings";
 import { setLoader } from "src/slices/loaderReducer";
 import { useRouter } from "next/router";
+import PaymentForm from "src/components/PaymentForm/PaymentForm";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -26,7 +26,7 @@ export default function CheckoutPage() {
 
   //TODO: Fetch shipping options from Admin Console DB
 
-  const processBambooPurchase = async (body: BambooPaymentData) => {
+  const processBambooPurchase = async (body: PaymentData) => {
     try {
       const response = await fetch("/api/bamboo/purchase", {
         method: "POST",
@@ -39,18 +39,46 @@ export default function CheckoutPage() {
     }
   };
 
-  const handlePayment = async (data: BambooPaymentData) => {
+  const processPrometeoBankTransferConfirmation = async (data: PaymentData) => {
+    try {
+      const response = await fetch("/api/prometeo/confirm", {
+        method: "POST",
+        body: JSON.stringify({
+          request_id: data.request_id,
+          session: data.session,
+          authorization_type: data.authorization_type,
+          authorization_data: data.authorization_data,
+          authorization_device_number: data.authorization_device_number,
+        }),
+      });
+
+      return await response.json();
+    } catch (err: any) {
+      throw new Error(err.message);
+    }
+  };
+
+  const handlePayment = async (data: PaymentData) => {
     try {
       // @ts-ignore
       dispatch(setLoader(true));
-      const response = await processBambooPurchase(data);
 
-      // @ts-ignore
-      dispatch(setLoader(false));
-      if (response.Response.PurchaseId) {
-        router.push("/success");
-      } else {
-        //  TODO: purchase failed, Show Message
+      if (data.PaymentType === "card") {
+        const response = await processBambooPurchase(data);
+
+        // @ts-ignore
+        dispatch(setLoader(false));
+        if (response.Response.PurchaseId) {
+          router.push("/success");
+        }
+      } else if (data.PaymentType === "bank_transfer") {
+        const response = await processPrometeoBankTransferConfirmation(data);
+        // @ts-ignore
+        dispatch(setLoader(false));
+
+        if (response.status === "success") {
+          router.push("/success");
+        }
       }
     } catch (e) {
       //  TODO: return error message (error handling o be determined)
@@ -62,7 +90,6 @@ export default function CheckoutPage() {
       className={`${nunito.className} max-w-screen-2xl mx-auto bg-gray-100 lg:flex`}
     >
       <div className={"flex flex-col-reverse w-full md:flex-row"}>
-        {/* LEFT SIDE CAPTURE INFO*/}
         {!session ? (
           <div
             className={
@@ -85,9 +112,8 @@ export default function CheckoutPage() {
         ) : (
           <>
             <div className={"bg-white w-full md:w-1/2"}>
-              <BambooPaymentForm handlePayment={handlePayment} />
+              <PaymentForm handlePayment={handlePayment} />
             </div>
-            {/*  RIGHT SIDE PRODUCTS*/}
             <div
               className={
                 "bg-gray-100 w-full md:w-1/2 p-5 md:p-10 mx-auto max-w-xl"

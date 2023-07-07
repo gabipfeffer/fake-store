@@ -1,7 +1,6 @@
 import { Product } from "../../typings";
 import Image from "next/image";
 import { useState } from "react";
-import { StarIcon } from "@heroicons/react/24/solid";
 import { useDispatch } from "react-redux";
 import { addToCart } from "src/slices/cartReducer";
 import { UYUPeso } from "src/utils/currency";
@@ -37,14 +36,6 @@ export default function ProductCard({ product }: Props) {
         className={"object-contain mx-auto"}
       />
       <h4 className={"my-3"}>{product.title}</h4>
-
-      <div className={"flex"}>
-        {Array(Math.floor(product.rating.rate))
-          .fill(undefined)
-          .map((_, index) => (
-            <StarIcon key={index} className={"h-5 text-yellow-500"} />
-          ))}
-      </div>
 
       <p className={"text-sm my-2 line-clamp-2"}>{product.description}</p>
 
