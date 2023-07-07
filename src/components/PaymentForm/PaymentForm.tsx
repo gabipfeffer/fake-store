@@ -1,28 +1,33 @@
 import OnboardingFlow from "src/components/OnboardingFlow";
-import BasicCustomerPaymentForm from "src/components/BambooPaymentForms/BasicCustomerPaymentForm";
-import CardDetailsPaymentForm from "src/components/BambooPaymentForms/CardDetailsPaymentForm";
-import ShippingMethodPaymentForm from "src/components/BambooPaymentForms/ShippingMethodPaymentForm";
+import ShippingMethodPaymentForm from "src/components/ShippingMethodPaymentForm";
 import { useState } from "react";
+import SelectPaymentTypeForm from "src/components/PaymentForm/SelectPaymentTypeForm";
+import { PaymentData } from "../../../typings";
 import { useSelector } from "react-redux";
+import { useSession } from "next-auth/react";
+import BasicCustomerPaymentForm from "src/components/PaymentForm/BasicCustomerPaymentForm";
+import CardDetailsPaymentForm from "src/components/PaymentForm/CardDetailsPaymentForm";
+import BankLoginForm from "src/components/PaymentForm/BankLoginForm";
+import PreProcessBankTransactionForm from "src/components/PaymentForm/PreProcessBankTransactionForm";
+import ConfirmBankTransactionForm from "src/components/PaymentForm/ConfirmBankTransactionForm";
 import {
   selectItems,
   selectShipping,
   selectTotal,
 } from "src/slices/cartReducer";
-import { useSession } from "next-auth/react";
 
 type Props = {
   handlePayment: (data: any) => void;
 };
 
-export default function BambooPaymentForm({ handlePayment }: Props) {
+export default function PaymentForm({ handlePayment }: Props) {
   const total = useSelector(selectTotal);
   const shipping = useSelector(selectShipping);
   const items = useSelector(selectItems);
-
   const { data: session } = useSession();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [paymentData, setPaymentData] = useState({
+  const [paymentData, setPaymentData] = useState<PaymentData>({
+    PaymentType: "card",
     Description: `Envío: ${shipping.name} - ${shipping.price} | Items: ${items
       .map((item) => `Cantidad: ${item.quantity}, ID: ${item.product.id}`)
       .join(", ")}`,
@@ -45,7 +50,7 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
       AddressDetail: "",
     },
     Customer: {
-      Email: session?.user?.email,
+      Email: session?.user?.email || "",
       DocNumber: "",
       PhoneNumber: "",
       FirstName: "",
@@ -57,13 +62,15 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
       Pan: "",
       CVV: "",
       Expiration: "",
-      Email: session?.user?.email,
+      Email: session?.user?.email || "",
       Document: "",
     },
+    authorization_type: "otp",
+    authorization_data: "",
+    authorization_device_number: "",
   });
 
   const onNext = (stepData: any) => {
-    // TODO: Validate stepData to check for empty fields
     const updatedData = { ...paymentData, ...stepData };
     setPaymentData(updatedData);
     setCurrentIndex(currentIndex + 1);
@@ -73,7 +80,7 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
     setCurrentIndex(currentIndex - 1);
   };
 
-  const onFinish = (data: any) => handlePayment(data);
+  const onFinish = (data?: PaymentData) => handlePayment(data);
 
   return (
     <div
@@ -89,9 +96,17 @@ export default function BambooPaymentForm({ handlePayment }: Props) {
           data={paymentData}
           onFinish={onFinish}
         >
-          <BasicCustomerPaymentForm />
           <ShippingMethodPaymentForm />
-          <CardDetailsPaymentForm />
+          <BasicCustomerPaymentForm />
+          <SelectPaymentTypeForm />
+          {paymentData?.PaymentType === "bank_transfer" && <BankLoginForm />}
+          {paymentData?.PaymentType === "bank_transfer" && (
+            <PreProcessBankTransactionForm />
+          )}
+          {paymentData?.PaymentType === "bank_transfer" && (
+            <ConfirmBankTransactionForm />
+          )}
+          {paymentData?.PaymentType === "card" && <CardDetailsPaymentForm />}
         </OnboardingFlow>
       </div>
     </div>

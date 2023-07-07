@@ -29,13 +29,13 @@ export default function OnboardingFlow({
   if (React.isValidElement(currentChild)) {
     // @ts-ignore
     return React.cloneElement(currentChild, {
-      //@ts-ignore
+      // @ts-ignore
       goToPrevious: currentIndex !== 0 ? goToPrevious : undefined,
-      //@ts-ignore
+      // @ts-ignore
       goToNext: currentIndex !== children?.length - 1 ? goToNext : undefined,
-      //@ts-ignore
-      onFinish: currentIndex === children?.length - 1 ? onFinish : undefined,
-      //@ts-ignore
+      // @ts-ignore
+      onFinish,
+      // @ts-ignore
       data,
     });
   }

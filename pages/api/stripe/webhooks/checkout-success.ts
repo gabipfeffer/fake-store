@@ -2,41 +2,32 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { buffer } from "micro";
 import { Order } from "../../../../typings";
 import * as admin from "firebase-admin";
+import { app, getUserByEmail } from "src/utils/firestore";
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const stripeSecret = process.env.STRIPE_SIGNING_SECRET;
 
-// Secure connection to FIREBASE from the backend
-const serviceAccount = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
-);
-
-const app = !admin.apps.length
-  ? admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    })
-  : admin.app();
-
 // TODO: Replace mock fn with real fn
-const saveOrderToDb = async (session: any, order: Order) => {
-  console.log("Saving order to DB", session.id);
-  return app
-    .firestore()
-    .collection("users")
-    .doc(session.metadata.email)
-    .collection("orders")
-    .doc(order.id)
-    .set(order);
+const saveOrderToDb = async (order: Order) => {
+  console.log("Saving order to DB", order.id);
+  return app.firestore().collection("orders").doc(order.id).set(order);
 };
 
 const fulfillOrder = async (session: any) => {
   console.log("Fulfilling order", session.id);
-  return saveOrderToDb(session, {
+  const user = await getUserByEmail(session.metadata.email);
+
+  if (!user)
+    throw new Error(
+      `User ${session.metadata.email} associated to order was not found on DB`
+    );
+  return saveOrderToDb({
     id: session.id,
     amount: session.amount_total / 100,
     amount_shipping: session.total_details.amount_shipping / 100,
     images: JSON.parse(session.metadata.images),
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    user_id: user.id,
   })
     .then(() =>
       console.log(`SUCCESS: Order ${session.id} has been added to the DB`)

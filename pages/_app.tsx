@@ -6,13 +6,16 @@ import { Provider } from "react-redux";
 import Header from "src/components/Header";
 import { PersistGate } from "redux-persist/integration/react";
 import Loader from "src/components/Loader";
+import { usePathname } from "next/navigation";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const pathname = usePathname();
+
   return (
     <SessionProvider session={pageProps.session}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <Header />
+          {!pathname.includes("/admin") && <Header />}
           <Loader />
           <Component {...pageProps} />
         </PersistGate>

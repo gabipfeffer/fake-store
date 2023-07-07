@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { CartItem } from "../../../typings";
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 type Data = { id: string };
@@ -11,15 +12,15 @@ export default async function handler(
     try {
       const { items, email, mode, shipping_rate } = JSON.parse(req.body);
 
-      const transformedItems = items.map((item: any) => ({
-        quantity: 1,
+      const transformedItems = items.map((item: CartItem) => ({
+        quantity: item.quantity,
         price_data: {
           currency: "usd",
-          unit_amount: item.price * 100,
+          unit_amount: item.product.price * 100,
           product_data: {
-            name: item.title,
-            description: item.description,
-            images: [item.image],
+            name: item.product.title,
+            description: item.product.description,
+            images: [item.product.image],
           },
         },
       }));
@@ -35,7 +36,9 @@ export default async function handler(
         automatic_tax: { enabled: true },
         metadata: {
           email,
-          images: JSON.stringify(items.map((item: any) => item.image)),
+          images: JSON.stringify(
+            items.map((item: CartItem) => item.product.image)
+          ),
         },
         shipping_address_collection: { allowed_countries: ["UY"] },
       });
