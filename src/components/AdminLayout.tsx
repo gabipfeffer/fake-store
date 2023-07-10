@@ -15,7 +15,7 @@ export default function AdminLayout({ children }: Props) {
   if (!session) {
     return (
       <main
-        className={`${nunito.className} w-screen min-h-screen bg-gray-700 flex items-center justify-center`}
+        className={`${nunito.className} min-h-screen bg-gray-700 flex items-center justify-center`}
       >
         <button
           onClick={() => signIn("google")}
@@ -30,9 +30,7 @@ export default function AdminLayout({ children }: Props) {
   }
 
   return (
-    <main
-      className={`${nunito.className} w-screen min-h-screen bg-gray-700 flex`}
-    >
+    <main className={`${nunito.className} min-h-screen bg-gray-700 flex`}>
       <div
         className={
           "pl-4 pb-4 pt-4 pr-0 flex flex-col justify-between min-h-full"
