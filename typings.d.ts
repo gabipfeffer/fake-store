@@ -27,6 +27,7 @@ export type Product = {
   id: string;
   title: string;
   images: { name: string; imageUrl: string }[];
+  image: string;
   price: number;
   inventory: number;
   ranking: number;

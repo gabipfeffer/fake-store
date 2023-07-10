@@ -43,7 +43,11 @@ export default function ProductForm({
         Category
         <select
           name={"category"}
-          value={product?.category?.id}
+          value={
+            typeof product?.category !== "string"
+              ? product?.category?.id
+              : product?.category
+          }
           className={"input"}
           onChange={onChange}
         >

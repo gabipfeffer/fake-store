@@ -177,7 +177,10 @@ export default function ProductsPage({
                 <span>{product.title}</span>
               </td>
               <td>
-                <span>{product?.category?.title}</span>
+                <span>
+                  {typeof product?.category !== "string" &&
+                    product?.category?.title}
+                </span>
               </td>
               <td>
                 <span>{UYUPeso.format(product.price)}</span>
