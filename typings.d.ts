@@ -31,7 +31,7 @@ export type Product = {
   inventory: number;
   ranking: number;
   description: string;
-  category: Category | null;
+  category: string | Category | null;
   status: "active" | "inactive";
   last_updated_at: number | FieldValue;
   created_at: number | FieldValue;
