@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Product } from "../../typings";
+import { Category, Product } from "../../typings";
 import { ChangeEvent, FormEvent } from "react";
 import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 type Props = {
   product: Partial<Product>;
+  categories: Category[];
   onSubmit: (e: FormEvent) => void;
   onChange: (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -15,6 +16,7 @@ type Props = {
 
 export default function ProductForm({
   product,
+  categories,
   onSubmit,
   onChange,
   onImageChange,
@@ -39,14 +41,19 @@ export default function ProductForm({
       </label>
       <label className={"adminLabel"}>
         Category
-        <input
-          placeholder={"Category"}
-          type={"text"}
+        <select
           name={"category"}
-          value={product?.category}
+          value={product?.category?.id}
           className={"input"}
           onChange={onChange}
-        />
+        >
+          <option value={undefined}></option>
+          {categories?.map((category) => (
+            <option key={category?.id} value={category.id}>
+              {category.title}
+            </option>
+          ))}
+        </select>
       </label>
       <label className={"adminLabel"}>
         Images

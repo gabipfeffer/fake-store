@@ -1,6 +1,6 @@
 import AdminLayout from "src/components/AdminLayout";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Product } from "../../../../typings";
+import { Category, Product } from "../../../../typings";
 import { setLoader } from "src/slices/loaderReducer";
 import { useDispatch } from "react-redux";
 import ProductForm from "src/components/ProductForm";
@@ -9,10 +9,15 @@ import {
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
-import { getProductById, getProducts } from "src/utils/firestore";
+import {
+  getCategories,
+  getProductById,
+  getProducts,
+} from "src/utils/firestore";
 
 export default function ProductPage({
   product: initialProduct,
+  categories: initialCategories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const dispatch = useDispatch();
   const [product, setProduct] = useState<Product>(initialProduct);
@@ -114,6 +119,7 @@ export default function ProductPage({
       <h1 className={"py-4 text-xl text-gray-900"}>{product.title}</h1>
       <ProductForm
         product={product}
+        categories={initialCategories}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
         onImageChange={handleImageChange}
@@ -127,9 +133,11 @@ export const getStaticProps = async (
   context: GetStaticPropsContext<{ id: string }>
 ) => {
   const product: Product = await getProductById(context?.params?.id!);
+  const categories: Category[] = await getCategories();
   return {
     props: {
       product,
+      categories,
     },
     revalidate: 20,
   };

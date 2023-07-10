@@ -7,7 +7,7 @@ import { ChangeEvent, useState } from "react";
 import { UYUPeso } from "src/utils/currency";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { searchProperties } from "src/constants/product";
-import { ProductStatus } from "../../../enums";
+import { DocumentStatus } from "../../../enums";
 
 export default function ProductsPage({
   products: initialProducts,
@@ -104,7 +104,7 @@ export default function ProductsPage({
           </select>
         </div>
       </div>
-      <table className={"productsTable"}>
+      <table className={"adminTable"}>
         <thead>
           <tr>
             <td>
@@ -177,13 +177,13 @@ export default function ProductsPage({
                 <span>{product.title}</span>
               </td>
               <td>
-                <span>{product.category}</span>
+                <span>{product?.category?.title}</span>
               </td>
               <td>
                 <span>{UYUPeso.format(product.price)}</span>
               </td>
               <td>
-                <span>{ProductStatus[product.status]}</span>
+                <span>{DocumentStatus[product.status]}</span>
               </td>
               <td>
                 <span>{product.ranking}</span>

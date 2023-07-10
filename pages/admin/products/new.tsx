@@ -1,16 +1,21 @@
 import AdminLayout from "src/components/AdminLayout";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Product } from "../../../typings";
+import { Category, Product } from "../../../typings";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "next/router";
 import { setLoader } from "src/slices/loaderReducer";
 import { useDispatch } from "react-redux";
 import ProductForm from "src/components/ProductForm";
+import { InferGetStaticPropsType } from "next";
+import { getCategories } from "src/utils/firestore";
 
-export default function NewProductPage() {
+export default function NewProductPage({
+  categories: initialCategories,
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   const dispatch = useDispatch();
   const router = useRouter();
   const [product, setProduct] = useState<Partial<Product>>({ id: uuidv4() });
+  const [categories] = useState<Category[]>(initialCategories);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -108,6 +113,7 @@ export default function NewProductPage() {
       <h1 className={"py-4 text-xl text-gray-900"}>New Product</h1>
       <ProductForm
         product={product}
+        categories={categories}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
         onImageChange={handleImageChange}
@@ -116,3 +122,18 @@ export default function NewProductPage() {
     </AdminLayout>
   );
 }
+
+export const getStaticProps = async () => {
+  try {
+    const categories: Category[] = await getCategories();
+
+    return {
+      props: {
+        categories,
+      },
+      revalidate: 20,
+    };
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+};
