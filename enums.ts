@@ -1,4 +1,4 @@
-export enum ProductStatus {
+export enum DocumentStatus {
   "inactive" = "Inactive",
   "active" = "Active",
 }

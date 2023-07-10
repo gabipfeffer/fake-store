@@ -70,18 +70,18 @@ body {
 
 }
 
-table.productsTable {
+table.adminTable {
   @apply w-full mt-4
 }
 
-table.productsTable thead tr td {
+table.adminTable thead tr td {
   @apply bg-gray-200 border
 }
 
-table.productsTable tr td {
+table.adminTable tr td {
   @apply border border-gray-300 p-1
 }
 
-table.productsTable a {
+table.adminTable a {
   @apply bg-gray-700 text-white py-2 px-3 rounded-md gap-1 inline-flex items-center
 }
