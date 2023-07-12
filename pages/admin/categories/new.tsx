@@ -1,27 +1,22 @@
 import AdminLayout from "src/components/AdminLayout";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Category, Product } from "../../../typings";
+import { Category } from "../../../typings";
 import { uuidv4 } from "@firebase/util";
 import { useRouter } from "next/router";
 import { setLoader } from "src/slices/loaderReducer";
 import { useDispatch } from "react-redux";
-import ProductForm from "src/components/ProductForm";
-import { InferGetStaticPropsType } from "next";
-import { getCategories } from "src/utils/firestore";
+import CategoryForm from "src/components/CategoryForm";
 
-export default function NewProductPage({
-  categories: initialCategories,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function NewCategoryPage() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const [product, setProduct] = useState<Partial<Product>>({ id: uuidv4() });
-  const [categories] = useState<Category[]>(initialCategories);
+  const [category, setCategory] = useState<Partial<Category>>({ id: uuidv4() });
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const prop = e.target.name as keyof Product;
-    setProduct({ ...product, [prop]: e.target.value });
+    const prop = e.target.name as keyof Category;
+    setCategory({ ...category, [prop]: e.target.value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {
@@ -30,22 +25,22 @@ export default function NewProductPage({
       // @ts-ignore
       dispatch(setLoader(true));
 
-      const createdProductResponse: { id: string } = await fetch(
-        "/api/products",
+      const createdCategoryResponse: { id: string } = await fetch(
+        "/api/categories",
         {
           method: "POST",
-          body: JSON.stringify({ product }),
+          body: JSON.stringify({ category: category }),
         }
       ).then((res: any) => res.json());
 
-      if (!createdProductResponse) {
-        throw new Error("Error creating product");
+      if (!createdCategoryResponse) {
+        throw new Error("Error creating category");
       }
       // @ts-ignore
       dispatch(setLoader(false));
-      router.push(`/admin/products/${createdProductResponse.id}`);
+      router.push(`/admin/categories/${createdCategoryResponse.id}`);
     } catch (e: any) {
-      alert(`Error creating product: ${e.message}`);
+      alert(`Error creating category: ${e.message}`);
     }
   };
 
@@ -55,7 +50,7 @@ export default function NewProductPage({
     if (files?.length && files?.length > 0) {
       const formData = new FormData();
       for (const file of files) {
-        formData.append(`${product?.id}/${file.name}`, file);
+        formData.append(`${category?.id}/${file.name}`, file);
       }
 
       const options: {
@@ -76,10 +71,10 @@ export default function NewProductPage({
         options
       ).then((res) => res.json());
 
-      setProduct({
-        ...product,
-        images: product?.images?.length
-          ? [...product?.images, ...response]
+      setCategory({
+        ...category,
+        images: category?.images?.length
+          ? [...category?.images, ...response]
           : response,
       });
     }
@@ -92,15 +87,15 @@ export default function NewProductPage({
       }).then((res) => res.json());
 
       if (response) {
-        const deletedImageIndex = product.images?.findIndex(
+        const deletedImageIndex = category.images?.findIndex(
           (image) => image.name === fileName
         );
 
-        if (product.images?.length && deletedImageIndex) {
-          const images = [...product.images];
+        if (category.images?.length && deletedImageIndex) {
+          const images = [...category.images];
           images.splice(deletedImageIndex, 1);
 
-          setProduct({ ...product, images });
+          setCategory({ ...category, images });
         }
       }
     } catch (e: any) {
@@ -110,10 +105,9 @@ export default function NewProductPage({
 
   return (
     <AdminLayout>
-      <h1 className={"py-4 text-xl text-gray-900"}>New Product</h1>
-      <ProductForm
-        product={product}
-        categories={categories}
+      <h1 className={"py-4 text-xl text-gray-900"}>New Category</h1>
+      <CategoryForm
+        category={category}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
         onImageChange={handleImageChange}
@@ -122,18 +116,3 @@ export default function NewProductPage({
     </AdminLayout>
   );
 }
-
-export const getStaticProps = async () => {
-  try {
-    const categories: Category[] = await getCategories();
-
-    return {
-      props: {
-        categories,
-      },
-      revalidate: 20,
-    };
-  } catch (e: any) {
-    throw new Error(e.message);
-  }
-};

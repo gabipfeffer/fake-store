@@ -1,32 +1,27 @@
 import AdminLayout from "src/components/AdminLayout";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Category, Product } from "../../../../typings";
+import { Category } from "../../../../typings";
 import { setLoader } from "src/slices/loaderReducer";
 import { useDispatch } from "react-redux";
-import ProductForm from "src/components/ProductForm";
+import CategoryForm from "src/components/CategoryForm";
 import {
   GetStaticPaths,
   GetStaticPropsContext,
   InferGetStaticPropsType,
 } from "next";
-import {
-  getCategories,
-  getProductById,
-  getProducts,
-} from "src/utils/firestore";
+import { getCategories, getCategoryById } from "src/utils/firestore";
 
-export default function ProductPage({
-  product: initialProduct,
-  categories: initialCategories,
+export default function CategoriesPage({
+  category: initialCategory,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const dispatch = useDispatch();
-  const [product, setProduct] = useState<Product>(initialProduct);
+  const [category, setCategory] = useState<Category>(initialCategory);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const prop = e.target.name as keyof Product;
-    setProduct({ ...product, [prop]: e.target.value });
+    const prop = e.target.name as keyof Category;
+    setCategory({ ...category, [prop]: e.target.value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {
@@ -35,21 +30,21 @@ export default function ProductPage({
       // @ts-ignore
       dispatch(setLoader(true));
 
-      const updatedProductResponse: { id: string } = await fetch(
-        "/api/products",
+      const updatedCategoryResponse: { id: string } = await fetch(
+        "/api/categories",
         {
           method: "PUT",
-          body: JSON.stringify({ product }),
+          body: JSON.stringify({ category }),
         }
       ).then((res: any) => res.json());
 
-      if (!updatedProductResponse) {
-        throw new Error("Error creating product");
+      if (!updatedCategoryResponse) {
+        throw new Error("Error creating category");
       }
       // @ts-ignore
       dispatch(setLoader(false));
     } catch (e: any) {
-      alert(`Error creating product: ${e.message}`);
+      alert(`Error creating category: ${e.message}`);
     }
   };
 
@@ -60,7 +55,7 @@ export default function ProductPage({
       if (files?.length && files?.length > 0) {
         const formData = new FormData();
         for (const file of files) {
-          formData.append(`${product.id}/${file.name}`, file);
+          formData.append(`${category.id}/${file.name}`, file);
         }
 
         const options: {
@@ -81,10 +76,10 @@ export default function ProductPage({
           options
         ).then((res) => res.json());
 
-        setProduct({
-          ...product,
-          images: product?.images?.length
-            ? [...product?.images, ...response]
+        setCategory({
+          ...category,
+          images: category?.images?.length
+            ? [...category?.images, ...response]
             : response,
         });
       }
@@ -100,14 +95,14 @@ export default function ProductPage({
       }).then((res) => res.json());
 
       if (response) {
-        const deletedImageIndex = product.images?.findIndex(
+        const deletedImageIndex = category.images?.findIndex(
           (image) => image.name === fileName
         );
 
-        const images = [...product.images];
+        const images = [...category.images];
         images.splice(deletedImageIndex, 1);
 
-        setProduct({ ...product, images });
+        setCategory({ ...category, images });
       }
     } catch (e: any) {
       alert(`Error deleting image: ${e.message}`);
@@ -116,10 +111,9 @@ export default function ProductPage({
 
   return (
     <AdminLayout>
-      <h1 className={"py-4 text-xl text-gray-900"}>{product.title}</h1>
-      <ProductForm
-        product={product}
-        categories={initialCategories}
+      <h1 className={"py-4 text-xl text-gray-900"}>{category.title}</h1>
+      <CategoryForm
+        category={category}
         onSubmit={handleOnSubmit}
         onChange={handleInputChange}
         onImageChange={handleImageChange}
@@ -132,24 +126,22 @@ export default function ProductPage({
 export const getStaticProps = async (
   context: GetStaticPropsContext<{ id: string }>
 ) => {
-  const product: Product = await getProductById(context?.params?.id!);
-  const categories: Category[] = await getCategories();
+  const category: Category = await getCategoryById(context?.params?.id!);
   return {
     props: {
-      product,
-      categories,
+      category,
     },
     revalidate: 20,
   };
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const products: Product[] = await getProducts();
+  const categories: Category[] = await getCategories();
 
   return {
-    paths: products.map((product: Product) => ({
+    paths: categories.map((category: Category) => ({
       params: {
-        id: product.id,
+        id: category.id,
       },
     })),
     fallback: "blocking",

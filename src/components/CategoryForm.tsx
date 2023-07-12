@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { Category, Product } from "../../typings";
+import { Category } from "../../typings";
 import { ChangeEvent, FormEvent } from "react";
 import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 type Props = {
-  product: Partial<Product>;
-  categories: Category[];
+  category: Partial<Category>;
   onSubmit: (e: FormEvent) => void;
   onChange: (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -14,9 +13,8 @@ type Props = {
   onImageDelete: (fileName: string) => void;
 };
 
-export default function ProductForm({
-  product,
-  categories,
+export default function CategoryForm({
+  category,
   onSubmit,
   onChange,
   onImageChange,
@@ -34,30 +32,10 @@ export default function ProductForm({
           placeholder={"Title"}
           type={"text"}
           name={"title"}
-          value={product?.title}
+          value={category?.title}
           className={"input"}
           onChange={onChange}
         />
-      </label>
-      <label className={"adminLabel"}>
-        Category
-        <select
-          name={"category"}
-          value={
-            typeof product?.category !== "string"
-              ? product?.category?.id
-              : product?.category
-          }
-          className={"input"}
-          onChange={onChange}
-        >
-          <option value={undefined}></option>
-          {categories?.map((category) => (
-            <option key={category?.id} value={category.id}>
-              {category.title}
-            </option>
-          ))}
-        </select>
       </label>
       <label className={"adminLabel"}>
         Images
@@ -77,7 +55,7 @@ export default function ProductForm({
         </label>
       </label>
       <div className={"flex items-center space-x-5 mt-5 w-full"}>
-        {product?.images?.map((image) => (
+        {category?.images?.map((image) => (
           <div key={image.name} className={"relative"}>
             <img
               src={image.imageUrl}
@@ -96,35 +74,11 @@ export default function ProductForm({
       </div>
 
       <label className={"adminLabel"}>
-        Price
-        <input
-          required={true}
-          placeholder={"Price"}
-          type={"text"}
-          name={"price"}
-          value={product?.price}
-          className={"input"}
-          onChange={onChange}
-        />
-      </label>
-      <label className={"adminLabel"}>
-        Inventory
-        <input
-          required={true}
-          placeholder={"Inventory"}
-          type={"number"}
-          name={"inventory"}
-          value={product?.inventory}
-          className={"input"}
-          onChange={onChange}
-        />
-      </label>
-      <label className={"adminLabel"}>
         Description
         <textarea
           placeholder={"Description"}
           name={"description"}
-          value={product?.description}
+          value={category?.description}
           className={"input"}
           onChange={onChange}
         />
@@ -134,7 +88,7 @@ export default function ProductForm({
         <select
           required={true}
           name={"status"}
-          value={product?.status}
+          value={category?.status}
           className={"input"}
           onChange={onChange}
         >
@@ -150,13 +104,13 @@ export default function ProductForm({
           placeholder={"Ranking"}
           type={"number"}
           name={"ranking"}
-          value={product?.ranking}
+          value={category?.ranking}
           className={"input"}
           onChange={onChange}
         />
       </label>
       <div className={"flex items-center justify-center gap-2"}>
-        <Link href={"/admin/products"} className={"adminButton"}>
+        <Link href={"/admin/categorys"} className={"adminButton"}>
           Cancel
         </Link>
         <button className={"adminButton"} type={"submit"}>

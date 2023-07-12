@@ -1,4 +1,4 @@
-import { Order, Product, User } from "../../typings";
+import { Category, Order, Product, User } from "../../typings";
 import db from "../../firebase";
 import * as admin from "firebase-admin";
 import moment from "moment/moment";
@@ -65,6 +65,7 @@ export const getOrdersByUserId = async (id: string): Promise<Order[]> => {
   );
 };
 
+// PRODUCTS
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const productsSnapshots = await db
@@ -77,12 +78,21 @@ export const getProducts = async (): Promise<Product[]> => {
         const product = document.data() as Product;
         const last_updated_at = formatFireStoreDate(product.last_updated_at);
         const created_at = formatFireStoreDate(product.created_at);
+        let category;
+        if (
+          product?.category &&
+          typeof product?.category === "string" &&
+          product?.category?.length
+        ) {
+          category = await getCategoryById(product.category);
+        }
 
         return {
           ...product,
           id: document.id,
           last_updated_at,
           created_at,
+          category: category || null,
         };
       })
     );
@@ -103,13 +113,23 @@ export const getProductById = async (id: string): Promise<Product> => {
     const last_updated_at = formatFireStoreDate(product.last_updated_at);
     const created_at = formatFireStoreDate(product.created_at);
 
-    const images = await getProductImages(product.id);
-
+    const images = await getImages(product.id);
+    console.log("product", product);
+    let category;
+    if (
+      product?.category &&
+      typeof product?.category === "string" &&
+      product?.category?.length
+    ) {
+      console.log("fetch category");
+      category = await getCategoryById(product.category);
+    }
     return {
       ...product,
       created_at,
       last_updated_at,
       images: images || [],
+      category: category || null,
     };
   } catch (e: any) {
     throw new Error(`Error fetching product by id: ${e.message}`);
@@ -144,6 +164,7 @@ export const deleteProduct = async (productId: string): Promise<any> => {
   }
 };
 
+// FILES
 export const uploadFiles = async (
   files: any
 ): Promise<Awaited<{ name: string; imageUrl: string }>[]> => {
@@ -168,8 +189,8 @@ export const uploadFiles = async (
   }
 };
 
-export const getProductImages = async (
-  productId: string
+export const getImages = async (
+  documentID: string
 ): Promise<{ name: string; imageUrl: string }[]> => {
   try {
     const bucket = app
@@ -178,7 +199,7 @@ export const getProductImages = async (
 
     return bucket
       .getFiles({
-        prefix: productId,
+        prefix: documentID,
       })
       .then((files) => {
         return Promise.all(
@@ -186,7 +207,7 @@ export const getProductImages = async (
         );
       });
   } catch (e: any) {
-    throw new Error(`Error getting product images: ${e.message}`);
+    throw new Error(`Error getting images: ${e.message}`);
   }
 };
 
@@ -222,5 +243,93 @@ export const deleteFile = (name: string) => {
       .delete();
   } catch (e: any) {
     throw new Error(`Error deleting file ${name}: ${e.message}`);
+  }
+};
+
+// CATEGORIES
+export const getCategories = async (): Promise<Category[]> => {
+  try {
+    const categoriesSnapshots = await db
+      .collection("categories")
+      .orderBy("title", "desc")
+      .get();
+
+    return await Promise.all(
+      categoriesSnapshots.docs.map(async (document) => {
+        const category = document.data() as Category;
+        const last_updated_at = formatFireStoreDate(category.last_updated_at);
+        const created_at = formatFireStoreDate(category.created_at);
+
+        return {
+          ...category,
+          id: document.id,
+          last_updated_at,
+          created_at,
+        };
+      })
+    );
+  } catch (e: any) {
+    throw new Error(`Error fetching categories: ${e.message}`);
+  }
+};
+
+export const getCategoryById = async (id: string): Promise<Category> => {
+  try {
+    const categorySnapshot = await db.collection("categories").doc(id).get();
+
+    if (!categorySnapshot.exists) {
+      throw new Error(`Category snapshot does not exist`);
+    }
+
+    const category = categorySnapshot.data() as Category;
+    const last_updated_at = formatFireStoreDate(category.last_updated_at);
+    const created_at = formatFireStoreDate(category.created_at);
+
+    const images = await getImages(category.id);
+
+    return {
+      ...category,
+      created_at,
+      last_updated_at,
+      images: images || [],
+    };
+  } catch (e: any) {
+    throw new Error(`Error fetching product by id: ${e.message}`);
+  }
+};
+
+export const createCategory = async (
+  category: Category
+): Promise<WriteResult> => {
+  try {
+    return app
+      .firestore()
+      .collection("categories")
+      .doc(category?.id)
+      .set(category);
+  } catch (e: any) {
+    throw new Error(`Error creating category: ${e.message}`);
+  }
+};
+
+export const updateCategory = async (
+  category: Category
+): Promise<WriteResult> => {
+  try {
+    return app
+      .firestore()
+      .collection("categories")
+      .doc(category?.id)
+      .update(category);
+  } catch (e: any) {
+    throw new Error(`Error updating category: ${e.message}`);
+  }
+};
+
+export const deleteCategory = async (categoryId: string): Promise<any> => {
+  try {
+    return app.firestore().collection("categories").doc(categoryId).delete();
+  } catch (e: any) {
+    throw new Error(`Error deleting category: ${e.message}`);
   }
 };

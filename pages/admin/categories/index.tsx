@@ -1,46 +1,45 @@
 import AdminLayout from "src/components/AdminLayout";
 import Link from "next/link";
 import { InferGetStaticPropsType } from "next";
-import { getProducts } from "src/utils/firestore";
-import { Product, SortDirection } from "../../../typings";
+import { getCategories } from "src/utils/firestore";
+import { Category, SortDirection } from "../../../typings";
 import { ChangeEvent, useState } from "react";
-import { UYUPeso } from "src/utils/currency";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import { searchProperties } from "src/constants/product";
+import { searchProperties } from "src/constants/category";
 import { DocumentStatus } from "../../../enums";
 
-export default function ProductsPage({
-  products: initialProducts,
+export default function CategoriesPage({
+  categories: initialCategories,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [currentSortKey, setCurrentSortKey] = useState<keyof Product | null>(
+  const [currentSortKey, setCurrentSortKey] = useState<keyof Category | null>(
     null
   );
-  const [activeSearchFilter, setActiveSearchFilter] = useState<keyof Product>(
+  const [activeSearchFilter, setActiveSearchFilter] = useState<keyof Category>(
     searchProperties[0].name
   );
 
-  const filterProducts = (searchInput: keyof Product) => {
+  const filterCategories = (searchInput: keyof Category) => {
     if (!searchInput.length) {
-      setProducts(initialProducts);
+      setCategories(initialCategories);
     }
 
     if (activeSearchFilter) {
-      const filteredList = initialProducts.filter((product: Product) => {
+      const filteredList = initialCategories.filter((product: Category) => {
         const propValue: any = product[activeSearchFilter];
 
         return propValue.toLowerCase().includes(searchInput.toLowerCase());
       });
-      setProducts(filteredList);
+      setCategories(filteredList);
     }
   };
 
-  const sortColumn = (sortKey: keyof Product): void => {
+  const sortColumn = (sortKey: keyof Category): void => {
     setCurrentSortKey(sortKey);
-    const sortedProducts = [...products];
+    const sortedCategories = [...categories];
 
-    sortedProducts.sort((a, b) => {
+    sortedCategories.sort((a, b) => {
       const relevantValueA = a[sortKey] || "";
       const relevantValueB = b[sortKey] || "";
 
@@ -72,14 +71,14 @@ export default function ProductsPage({
       setSortDirection("asc");
     }
 
-    setProducts(sortedProducts);
+    setCategories(sortedCategories);
   };
 
   return (
     <AdminLayout>
       <div className={"flex items-center justify-between"}>
-        <Link href={"/admin/products/new"} className={"adminButton"}>
-          Add new product
+        <Link href={"/admin/categories/new"} className={"adminButton"}>
+          Add new category
         </Link>
         <div className={"flex items-center gap-1"}>
           <input
@@ -87,13 +86,13 @@ export default function ProductsPage({
             className={"input"}
             type={"text"}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              filterProducts(e.target.value as keyof Product)
+              filterCategories(e.target.value as keyof Category)
             }
           />
           <select
             className={"input w-auto"}
             onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-              setActiveSearchFilter(event.target.value as keyof Product)
+              setActiveSearchFilter(event.target.value as keyof Category)
             }
           >
             {searchProperties.map((searchProp) => (
@@ -117,26 +116,7 @@ export default function ProductsPage({
                 )}
               </button>
             </td>
-            <td>
-              <button onClick={() => sortColumn("category")}>
-                Category{" "}
-                {currentSortKey === "category" && (
-                  <span className="pl-1">
-                    {sortDirection === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </button>
-            </td>
-            <td>
-              <button onClick={() => sortColumn("price")}>
-                Price{" "}
-                {currentSortKey === "price" && (
-                  <span className="pl-1">
-                    {sortDirection === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </button>
-            </td>
+
             <td>
               <button onClick={() => sortColumn("status")}>
                 Status{" "}
@@ -157,48 +137,27 @@ export default function ProductsPage({
                 )}
               </button>
             </td>
-            <td>
-              <button onClick={() => sortColumn("inventory")}>
-                Inventory{" "}
-                {currentSortKey === "inventory" && (
-                  <span className="pl-1">
-                    {sortDirection === "asc" ? "↑" : "↓"}
-                  </span>
-                )}
-              </button>
-            </td>
+
             <td></td>
           </tr>
         </thead>
         <tbody className={"border"}>
-          {products.map((product) => (
-            <tr key={product.id} className={"border"}>
+          {categories.map((category) => (
+            <tr key={category.id} className={"border"}>
               <td>
-                <span>{product.title}</span>
+                <span>{category.title}</span>
               </td>
               <td>
-                <span>
-                  {typeof product?.category !== "string" &&
-                    product?.category?.title}
-                </span>
+                <span>{DocumentStatus[category.status]}</span>
               </td>
               <td>
-                <span>{UYUPeso.format(product.price)}</span>
-              </td>
-              <td>
-                <span>{DocumentStatus[product.status]}</span>
-              </td>
-              <td>
-                <span>{product.ranking}</span>
-              </td>
-              <td>
-                <span>{product.inventory}</span>
+                <span>{category.ranking}</span>
               </td>
               <td className={"flex items-center gap-2"}>
-                <Link href={`/admin/products/${product.id}`}>
+                <Link href={`/admin/categories/${category.id}`}>
                   <PencilIcon className={"w-5 h-5"} /> Edit
                 </Link>
-                <Link href={`/admin/products/${product.id}/delete`}>
+                <Link href={`/admin/categories/${category.id}/delete`}>
                   <TrashIcon className={"w-5 h-5"} /> Delete
                 </Link>
               </td>
@@ -210,10 +169,10 @@ export default function ProductsPage({
   );
 }
 export async function getStaticProps() {
-  const products: Product[] = await getProducts();
+  const categories: Category[] = await getCategories();
   return {
     props: {
-      products,
+      categories,
     },
     revalidate: 20,
   };

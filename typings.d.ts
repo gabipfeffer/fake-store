@@ -27,12 +27,12 @@ export type Product = {
   id: string;
   title: string;
   images: { name: string; imageUrl: string }[];
+  image: string;
   price: number;
   inventory: number;
   ranking: number;
   description: string;
-  category: string;
-  image: string;
+  category: string | Category | null;
   status: "active" | "inactive";
   last_updated_at: number | FieldValue;
   created_at: number | FieldValue;
@@ -40,6 +40,17 @@ export type Product = {
     rate: number;
     count: number;
   };
+};
+
+export type Category = {
+  id: string;
+  title: string;
+  description: string;
+  ranking: number;
+  images: { name: string; imageUrl: string }[];
+  status: "active" | "inactive";
+  last_updated_at: number | FieldValue;
+  created_at: number | FieldValue;
 };
 
 export type Order = {
