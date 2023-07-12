@@ -1,33 +1,30 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-  createProduct,
-  deleteProduct,
-  updateProduct,
-} from "src/utils/firestore";
+import { createUser, updateUser, deleteUser } from "src/utils/firestore";
 import { firestore } from "firebase-admin";
 import { isAdminRequest } from "src/utils/authOptions";
 
+type Data = { id: string };
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse<Data>
 ) {
   await isAdminRequest(req, res);
-
   if (req.method === "POST") {
     try {
-      const { product } = JSON.parse(req.body);
+      const { user } = JSON.parse(req.body);
       const timestamp = firestore.FieldValue.serverTimestamp();
-      const createdProduct = await createProduct({
-        ...product,
+      const createdUser = await createUser({
+        ...user,
         last_updated_at: timestamp,
         created_at: timestamp,
       });
 
-      if (!createdProduct) {
-        throw new Error("Error creating product");
+      if (!createdUser) {
+        throw new Error("Error creating user");
       }
 
-      res.status(200).json({ id: product.id });
+      res.status(200).json({ id: user.id });
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
@@ -35,17 +32,17 @@ export default async function handler(
 
   if (req.method === "PUT") {
     try {
-      const { product } = JSON.parse(req.body);
-      const updatedProduct = await updateProduct({
-        ...product,
+      const { user } = JSON.parse(req.body);
+      const updatedUser = await updateUser({
+        ...user,
         last_updated_at: firestore.FieldValue.serverTimestamp(),
       });
 
-      if (!updatedProduct) {
-        throw new Error("Error updating product" + product.id);
+      if (!updatedUser) {
+        throw new Error("Error updating user" + user.id);
       }
 
-      res.status(200).json({ id: product.id });
+      res.status(200).json({ id: user.id });
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
@@ -54,10 +51,10 @@ export default async function handler(
   if (req.method === "DELETE") {
     try {
       const { id } = req.query;
-      const deletedProduct = await deleteProduct(id as string);
+      const deletedUser = await deleteUser(id as string);
 
-      if (!deletedProduct) {
-        throw new Error("Error deleting product" + id);
+      if (!deletedUser) {
+        throw new Error("Error deleting user" + id);
       }
 
       res.status(200).json({ id: id as string });

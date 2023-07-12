@@ -5,6 +5,7 @@ import {
   deleteCategory,
 } from "src/utils/firestore";
 import { firestore } from "firebase-admin";
+import { isAdminRequest } from "src/utils/authOptions";
 
 type Data = { id: string };
 
@@ -12,6 +13,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  await isAdminRequest(req, res);
   if (req.method === "POST") {
     try {
       const { category } = JSON.parse(req.body);
@@ -30,7 +32,9 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else if (req.method === "PUT") {
+  }
+
+  if (req.method === "PUT") {
     try {
       const { category } = JSON.parse(req.body);
       const updatedCategory = await updateCategory({
@@ -46,7 +50,9 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else if (req.method === "DELETE") {
+  }
+
+  if (req.method === "DELETE") {
     try {
       const { id } = req.query;
       const deletedCategory = await deleteCategory(id as string);
@@ -59,8 +65,8 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else {
-    res.setHeader("Allow", "POST");
-    res.status(405).end("Method Not Allowed");
   }
+
+  res.setHeader("Allow", "POST");
+  res.status(405).end("Method Not Allowed");
 }
