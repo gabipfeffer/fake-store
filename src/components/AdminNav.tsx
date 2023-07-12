@@ -1,7 +1,11 @@
-import { BuildingStorefrontIcon } from "@heroicons/react/24/solid";
+import {
+  ArrowLeftOnRectangleIcon,
+  BuildingStorefrontIcon,
+} from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NavItem } from "../../typings";
+import { signOut } from "next-auth/react";
 
 type Props = {
   navigation: NavItem[];
@@ -33,6 +37,9 @@ export default function AdminNav({ navigation }: Props) {
             </Link>
           );
         })}
+        <button className={"inactiveAdminNavLink"} onClick={() => signOut()}>
+          <ArrowLeftOnRectangleIcon className={"h-6"} /> Logout
+        </button>
       </nav>
     </aside>
   );

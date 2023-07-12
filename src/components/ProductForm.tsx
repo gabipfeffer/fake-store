@@ -100,7 +100,7 @@ export default function ProductForm({
         <input
           required={true}
           placeholder={"Price"}
-          type={"text"}
+          type={"number"}
           name={"price"}
           value={product?.price}
           className={"input"}

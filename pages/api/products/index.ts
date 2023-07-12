@@ -5,13 +5,14 @@ import {
   updateProduct,
 } from "src/utils/firestore";
 import { firestore } from "firebase-admin";
-
-type Data = { id: string };
+import { isAdminRequest } from "src/utils/authOptions";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
+  await isAdminRequest(req, res);
+
   if (req.method === "POST") {
     try {
       const { product } = JSON.parse(req.body);
@@ -30,7 +31,9 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else if (req.method === "PUT") {
+  }
+
+  if (req.method === "PUT") {
     try {
       const { product } = JSON.parse(req.body);
       const updatedProduct = await updateProduct({
@@ -46,7 +49,9 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else if (req.method === "DELETE") {
+  }
+
+  if (req.method === "DELETE") {
     try {
       const { id } = req.query;
       const deletedProduct = await deleteProduct(id as string);
@@ -59,8 +64,8 @@ export default async function handler(
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
-  } else {
-    res.setHeader("Allow", "POST");
-    res.status(405).end("Method Not Allowed");
   }
+
+  res.setHeader("Allow", "POST");
+  res.status(405).end("Method Not Allowed");
 }

@@ -21,26 +21,7 @@ const formatFireStoreDate = (date: number | FieldValue) => {
   return moment(date?.toDate?.()).unix();
 };
 
-export const getUserByEmail = async (
-  email: string
-): Promise<User | undefined> => {
-  let user = undefined;
-  const userSnapshots = await db
-    .collection("users")
-    .where("email", "==", email)
-    .get();
-
-  if (userSnapshots.empty) {
-    return user;
-  }
-
-  userSnapshots.forEach((doc) => {
-    user = { id: doc.id, ...doc.data() };
-  });
-
-  return user;
-};
-
+// ORDERS
 export const getOrdersByUserId = async (id: string): Promise<Order[]> => {
   const firebaseOrders = await db
     .collection("orders")
@@ -114,14 +95,13 @@ export const getProductById = async (id: string): Promise<Product> => {
     const created_at = formatFireStoreDate(product.created_at);
 
     const images = await getImages(product.id);
-    console.log("product", product);
+
     let category;
     if (
       product?.category &&
       typeof product?.category === "string" &&
       product?.category?.length
     ) {
-      console.log("fetch category");
       category = await getCategoryById(product.category);
     }
     return {
@@ -331,5 +311,122 @@ export const deleteCategory = async (categoryId: string): Promise<any> => {
     return app.firestore().collection("categories").doc(categoryId).delete();
   } catch (e: any) {
     throw new Error(`Error deleting category: ${e.message}`);
+  }
+};
+
+// USERS
+export const getUserByEmail = async (
+  email: string
+): Promise<User | undefined> => {
+  let user = undefined;
+  const userSnapshots = await db
+    .collection("users")
+    .where("email", "==", email)
+    .get();
+
+  if (userSnapshots.empty) {
+    return user;
+  }
+
+  userSnapshots.forEach((doc) => {
+    user = { id: doc.id, ...doc.data() };
+  });
+
+  return user;
+};
+
+// ADMIN USERS
+export const getAdminUsers = async (): Promise<User[]> => {
+  try {
+    const usersSnapshots = await db
+      .collection("admin_users")
+      .orderBy("last_updated_at", "desc")
+      .get();
+
+    return await Promise.all(
+      usersSnapshots.docs.map(async (document) => {
+        const user = document.data() as User;
+        const last_updated_at = formatFireStoreDate(user.last_updated_at);
+        const created_at = formatFireStoreDate(user.created_at);
+
+        return {
+          ...user,
+          id: document.id,
+          last_updated_at,
+          created_at,
+        };
+      })
+    );
+  } catch (e: any) {
+    throw new Error(`Error fetching admin users: ${e.message}`);
+  }
+};
+
+export const getAdminUserById = async (id: string): Promise<User> => {
+  try {
+    const userSnapshot = await db.collection("admin_users").doc(id).get();
+
+    if (!userSnapshot.exists) {
+      throw new Error(`Admin user snapshot does not exist`);
+    }
+
+    const user = userSnapshot.data() as User;
+    const last_updated_at = formatFireStoreDate(user.last_updated_at);
+    const created_at = formatFireStoreDate(user.created_at);
+
+    return {
+      ...user,
+      created_at,
+      last_updated_at,
+    };
+  } catch (e: any) {
+    throw new Error(`Error fetching admin user by id: ${e.message}`);
+  }
+};
+export const getAdminUserByEmail = async (
+  email: string
+): Promise<User | undefined> => {
+  try {
+    let adminUser = undefined;
+    const adminUserSnapshots = await db
+      .collection("admin_users")
+      .where("email", "==", email)
+      .get();
+
+    if (adminUserSnapshots.empty) {
+      return adminUser;
+    }
+
+    adminUserSnapshots.forEach((doc) => {
+      adminUser = { id: doc.id, ...doc.data() };
+    });
+
+    return adminUser;
+  } catch (e: any) {
+    throw new Error(`Error fetching admin user by id: ${e.message}`);
+  }
+};
+
+export const createAdminUser = async (user: User): Promise<WriteResult> => {
+  try {
+    return app.firestore().collection("admin_users").doc(user?.id).set(user);
+  } catch (e: any) {
+    throw new Error(`Error creating admin user: ${e.message}`);
+  }
+};
+
+export const updateAdminUser = async (user: User): Promise<WriteResult> => {
+  try {
+    return app.firestore().collection("admin_users").doc(user?.id).update(user);
+  } catch (e: any) {
+    throw new Error(`Error updating admin user: ${e.message}`);
+  }
+};
+
+export const deleteAdminUser = async (userId: string): Promise<any> => {
+  try {
+    return app.firestore().collection("admin_users").doc(userId).delete();
+  } catch (e: any) {
+    throw new Error(`Error deleting admin user: ${e.message}`);
   }
 };

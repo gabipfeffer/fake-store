@@ -26,7 +26,9 @@ export default function ProductPage({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const prop = e.target.name as keyof Product;
-    setProduct({ ...product, [prop]: e.target.value });
+    const value =
+      e.target.type === "number" ? Number(e.target.value) : e.target.value;
+    setProduct({ ...product, [prop]: value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {

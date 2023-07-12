@@ -1,34 +1,48 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import {
-  createCategory,
-  updateCategory,
-  deleteCategory,
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+  getAdminUserByEmail,
 } from "src/utils/firestore";
 import { firestore } from "firebase-admin";
 import { isAdminRequest } from "src/utils/authOptions";
 
-type Data = { id: string };
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
+  if (req.method === "GET") {
+    try {
+      const { email } = req.query;
+      const adminUser = await getAdminUserByEmail(email as string);
+
+      if (!adminUser) {
+        throw new Error("Error fetching admin user");
+      }
+
+      res.status(200).json(adminUser);
+    } catch (err: any) {
+      res.status(err.statusCode || 500).json(err.message);
+    }
+  }
+
   await isAdminRequest(req, res);
   if (req.method === "POST") {
     try {
-      const { category } = JSON.parse(req.body);
+      const { user } = JSON.parse(req.body);
       const timestamp = firestore.FieldValue.serverTimestamp();
-      const createdCategory = await createCategory({
-        ...category,
+      const createdAdminUser = await createAdminUser({
+        ...user,
         last_updated_at: timestamp,
         created_at: timestamp,
       });
 
-      if (!createdCategory) {
-        throw new Error("Error creating category");
+      if (!createdAdminUser) {
+        throw new Error("Error creating user");
       }
 
-      res.status(200).json({ id: category.id });
+      res.status(200).json({ id: user.id });
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
@@ -36,17 +50,17 @@ export default async function handler(
 
   if (req.method === "PUT") {
     try {
-      const { category } = JSON.parse(req.body);
-      const updatedCategory = await updateCategory({
-        ...category,
+      const { user } = JSON.parse(req.body);
+      const updatedAdminUser = await updateAdminUser({
+        ...user,
         last_updated_at: firestore.FieldValue.serverTimestamp(),
       });
 
-      if (!updatedCategory) {
-        throw new Error("Error updating category" + category.id);
+      if (!updatedAdminUser) {
+        throw new Error("Error updating user" + user.id);
       }
 
-      res.status(200).json({ id: category.id });
+      res.status(200).json({ id: user.id });
     } catch (err: any) {
       res.status(err.statusCode || 500).json(err.message);
     }
@@ -55,10 +69,10 @@ export default async function handler(
   if (req.method === "DELETE") {
     try {
       const { id } = req.query;
-      const deletedCategory = await deleteCategory(id as string);
+      const deletedAdminUser = await deleteAdminUser(id as string);
 
-      if (!deletedCategory) {
-        throw new Error("Error deleting category" + id);
+      if (!deletedAdminUser) {
+        throw new Error("Error deleting user" + id);
       }
 
       res.status(200).json({ id: id as string });
