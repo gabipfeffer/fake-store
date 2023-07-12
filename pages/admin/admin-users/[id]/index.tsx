@@ -21,7 +21,9 @@ export default function UserPage({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const prop = e.target.name as keyof User;
-    setUser({ ...user, [prop]: e.target.value });
+    const value =
+      e.target.type === "number" ? Number(e.target.value) : e.target.value;
+    setUser({ ...user, [prop]: value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {

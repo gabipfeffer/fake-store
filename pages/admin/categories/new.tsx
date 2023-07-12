@@ -16,7 +16,9 @@ export default function NewCategoryPage() {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const prop = e.target.name as keyof Category;
-    setCategory({ ...category, [prop]: e.target.value });
+    const value =
+      e.target.type === "number" ? Number(e.target.value) : e.target.value;
+    setCategory({ ...category, [prop]: value });
   };
 
   const handleOnSubmit = async (e: FormEvent) => {
