@@ -1,7 +1,7 @@
 import AdminNav from "src/components/AdminNav";
 import { adminNavigation } from "src/constants/adminNavigation";
 import { Nunito } from "next/font/google";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -11,8 +11,23 @@ type Props = {
 
 export default function AdminLayout({ children }: Props) {
   const { data: session } = useSession();
+  const [isAdmin, setIsAdmin] = useState<boolean>(!!session);
 
-  if (!session) {
+  useEffect(() => {
+    if (session?.user?.email) {
+      (async () => {
+        const fetchedUser = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin-users?email=${session.user?.email}`
+        ).then((res) => res.json());
+
+        if (fetchedUser) {
+          setIsAdmin(true);
+        }
+      })();
+    }
+  }, [session]);
+
+  if (!isAdmin || !session) {
     return (
       <main
         className={`${nunito.className} min-h-screen bg-gray-700 flex items-center justify-center`}

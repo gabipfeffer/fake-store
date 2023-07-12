@@ -95,14 +95,13 @@ export const getProductById = async (id: string): Promise<Product> => {
     const created_at = formatFireStoreDate(product.created_at);
 
     const images = await getImages(product.id);
-    console.log("product", product);
+
     let category;
     if (
       product?.category &&
       typeof product?.category === "string" &&
       product?.category?.length
     ) {
-      console.log("fetch category");
       category = await getCategoryById(product.category);
     }
     return {
@@ -384,7 +383,9 @@ export const getAdminUserById = async (id: string): Promise<User> => {
     throw new Error(`Error fetching admin user by id: ${e.message}`);
   }
 };
-export const getAdminUserByEmail = async (email: string): Promise<User> => {
+export const getAdminUserByEmail = async (
+  email: string
+): Promise<User | undefined> => {
   try {
     let adminUser = undefined;
     const adminUserSnapshots = await db

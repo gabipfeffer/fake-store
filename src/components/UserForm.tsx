@@ -5,9 +5,7 @@ import { ChangeEvent, FormEvent } from "react";
 type Props = {
   user: Partial<User>;
   onSubmit: (e: FormEvent) => void;
-  onChange: (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 };
 
 export default function UserForm({ user, onSubmit, onChange }: Props) {

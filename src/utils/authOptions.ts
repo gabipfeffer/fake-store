@@ -3,13 +3,11 @@ import { FirestoreAdapter } from "@auth/firebase-adapter";
 import { cert } from "firebase-admin/app";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
+import { getAdminUserByEmail } from "src/utils/firestore";
 
 const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
 );
-
-// TODO: Refactor into admin collection at DB
-export const adminEmails = ["gabrielpfeffer@gmail.com"];
 
 const authOptions = {
   providers: [
@@ -30,13 +28,13 @@ export async function isAdminRequest(
   res: NextApiResponse
 ) {
   try {
-    const session = await getServerSession(
-      req as any,
-      res as any,
-      authOptions as any
-    );
+    const session: null | {
+      user: { email: string; name: string; image: string };
+    } = await getServerSession(req as any, res as any, authOptions as any);
 
-    if (!session || !adminEmails.includes(session?.user?.email!)) {
+    const fetchedAdminUser = await getAdminUserByEmail(session?.user?.email!);
+
+    if (!session || !fetchedAdminUser) {
       throw new Error("User is not an admin");
     }
     return true;
