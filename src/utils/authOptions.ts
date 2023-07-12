@@ -32,13 +32,17 @@ export async function isAdminRequest(
       user: { email: string; name: string; image: string };
     } = await getServerSession(req as any, res as any, authOptions as any);
 
+    if (!session) {
+      throw new Error("User is not logged in");
+    }
+
     const fetchedAdminUser = await getAdminUserByEmail(session?.user?.email!);
 
-    if (!session || !fetchedAdminUser) {
+    if (!fetchedAdminUser) {
       throw new Error("User is not an admin");
     }
     return true;
   } catch (e: any) {
-    throw new Error(e);
+    res.status(400).json({ message: e.message });
   }
 }
