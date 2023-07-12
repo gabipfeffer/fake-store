@@ -18,9 +18,9 @@ export type NavItem = {
 export type User = {
   id: string;
   name: string;
-  emailVerified: boolean | null;
   email: string;
-  image: string;
+  last_updated_at: number | FieldValue;
+  created_at: number | FieldValue;
 };
 
 export type Product = {

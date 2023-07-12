@@ -1,26 +1,44 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createUser, updateUser, deleteUser } from "src/utils/firestore";
+import {
+  createAdminUser,
+  updateAdminUser,
+  deleteAdminUser,
+  getAdminUserByEmail,
+} from "src/utils/firestore";
 import { firestore } from "firebase-admin";
 import { isAdminRequest } from "src/utils/authOptions";
 
-type Data = { id: string };
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse
 ) {
+  if (req.method === "GET") {
+    try {
+      const { email } = req.query;
+      const adminUser = await getAdminUserByEmail(email as string);
+
+      if (!adminUser) {
+        throw new Error("Error fetching admin user");
+      }
+
+      res.status(200).json(adminUser);
+    } catch (err: any) {
+      res.status(err.statusCode || 500).json(err.message);
+    }
+  }
+
   await isAdminRequest(req, res);
   if (req.method === "POST") {
     try {
       const { user } = JSON.parse(req.body);
       const timestamp = firestore.FieldValue.serverTimestamp();
-      const createdUser = await createUser({
+      const createdAdminUser = await createAdminUser({
         ...user,
         last_updated_at: timestamp,
         created_at: timestamp,
       });
 
-      if (!createdUser) {
+      if (!createdAdminUser) {
         throw new Error("Error creating user");
       }
 
@@ -33,12 +51,12 @@ export default async function handler(
   if (req.method === "PUT") {
     try {
       const { user } = JSON.parse(req.body);
-      const updatedUser = await updateUser({
+      const updatedAdminUser = await updateAdminUser({
         ...user,
         last_updated_at: firestore.FieldValue.serverTimestamp(),
       });
 
-      if (!updatedUser) {
+      if (!updatedAdminUser) {
         throw new Error("Error updating user" + user.id);
       }
 
@@ -51,9 +69,9 @@ export default async function handler(
   if (req.method === "DELETE") {
     try {
       const { id } = req.query;
-      const deletedUser = await deleteUser(id as string);
+      const deletedAdminUser = await deleteAdminUser(id as string);
 
-      if (!deletedUser) {
+      if (!deletedAdminUser) {
         throw new Error("Error deleting user" + id);
       }
 
