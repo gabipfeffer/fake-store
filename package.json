@@ -29,6 +29,7 @@
     "multiparty": "4.2.3",
     "next": "13.4.4",
     "next-auth": "4.22.1",
+    "next-pwa": "5.6.0",
     "next-redux-wrapper": "8.1.0",
     "postcss": "8.4.24",
     "react": "18.2.0",
