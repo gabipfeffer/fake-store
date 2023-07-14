@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "src/slices/cartReducer";
 import { UYUPeso } from "src/utils/currency";
+import Link from "next/link";
 
 type Props = {
   product: Product;
@@ -25,26 +26,35 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <div className={"relative flex flex-col m-5 bg-white z-30 p-10"}>
-      <p className={"absolute top-2 right-2 font-sx italic text-gray-400"}>
+      <Link
+        href={
+          typeof product?.category !== "string"
+            ? `/categories/${product?.category?.id}`
+            : `/categories/${product?.category}`
+        }
+        className={"absolute top-2 right-2 font-sx italic text-gray-400"}
+      >
         {typeof product?.category !== "string"
           ? product?.category?.title
           : product?.category}
-      </p>
-      <Image
-        src={product.image}
-        height={200}
-        width={200}
-        alt={product.title}
-        className={"object-contain mx-auto"}
-      />
-      <h4 className={"my-3"}>{product.title}</h4>
-
-      <p className={"text-sm my-2 line-clamp-2"}>{product.description}</p>
-
-      <div className={"mb-5"}>
-        <p>{UYUPeso.format(product.price)}</p>
-      </div>
-
+      </Link>
+      <Link href={`/products/${product.id}`}>
+        {product.images?.[0]?.imageUrl && (
+          <Image
+            key={product.images?.[0]?.name}
+            src={product.images?.[0]?.imageUrl as string}
+            height={200}
+            width={200}
+            alt={product.title}
+            className={"object-contain mx-auto"}
+          />
+        )}
+        <h4 className={"my-3"}>{product.title}</h4>
+        <p className={"text-sm my-2 line-clamp-2"}>{product.description}</p>
+        <div className={"mb-5"}>
+          <p>{UYUPeso.format(product.price)}</p>
+        </div>
+      </Link>
       <div className={"flex items-center justify-center space-x-2"}>
         <label className={"flex items-center gap-2"}>
           Quantity:{" "}

@@ -20,7 +20,7 @@ export default async function handler(
           product_data: {
             name: item.product.title,
             description: item.product.description,
-            images: [item.product.image],
+            images: [item.product.images?.[0]?.imageUrl],
           },
         },
       }));
@@ -36,9 +36,6 @@ export default async function handler(
         automatic_tax: { enabled: true },
         metadata: {
           email,
-          images: JSON.stringify(
-            items.map((item: CartItem) => item.product.image)
-          ),
         },
         shipping_address_collection: { allowed_countries: ["UY"] },
       });

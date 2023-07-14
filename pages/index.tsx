@@ -3,6 +3,7 @@ import Banner from "src/components/Banner";
 import ProductFeed from "src/components/ProductFeed";
 import { Product } from "../typings";
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import { getProducts } from "src/utils/firestore";
 
 const nunito = Nunito({ subsets: ["latin"] });
 
@@ -22,9 +23,6 @@ export default function Home({
 export const getServerSideProps: GetServerSideProps<{
   products: Product[];
 }> = async () => {
-  const BASE_URL = "https://fakestoreapi.com";
-  const products: Product[] = await fetch(`${BASE_URL}/products`).then((res) =>
-    res.json()
-  );
+  const products: Product[] = await getProducts();
   return { props: { products } };
 };

@@ -27,7 +27,7 @@ export default function CheckoutProduct({ product, quantity }: Props) {
     >
       <div className={"flex items-center justify-start flex-1"}>
         <Image
-          src={product.image}
+          src={product.images?.[0]?.imageUrl as string}
           width={200}
           height={200}
           alt={product.title}

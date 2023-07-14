@@ -91,7 +91,7 @@ function CheckoutProductList({ items }: { items: CartItem[] }) {
             }
           >
             <Image
-              src={item.product.image}
+              src={item.product.images?.[0]?.imageUrl as string}
               width={80}
               height={80}
               alt={item.product.title}
