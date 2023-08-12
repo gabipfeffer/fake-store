@@ -1,8 +1,8 @@
 import AdminNav from "src/components/AdminNav";
 import { adminNavigation } from "src/constants/adminNavigation";
 import { Nunito } from "next/font/google";
-import { ReactNode, useEffect, useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { ReactNode } from "react";
+import { signOut, useSession } from "next-auth/react";
 const nunito = Nunito({ subsets: ["latin"] });
 
 type Props = {
@@ -11,38 +11,6 @@ type Props = {
 
 export default function AdminLayout({ children }: Props) {
   const { data: session } = useSession();
-  const [isAdmin, setIsAdmin] = useState<boolean>(!!session);
-
-  useEffect(() => {
-    if (session?.user?.email) {
-      (async () => {
-        const fetchedUser = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/admin-users?email=${session.user?.email}`
-        ).then((res) => res.json());
-
-        if (fetchedUser) {
-          setIsAdmin(true);
-        }
-      })();
-    }
-  }, [session]);
-
-  if (!isAdmin || !session) {
-    return (
-      <main
-        className={`${nunito.className} min-h-screen bg-gray-700 flex items-center justify-center`}
-      >
-        <button
-          onClick={() => signIn("google")}
-          className={
-            "text-white rounded-lg p-4 hover:text-gray-700 hover:bg-white border-2 border-white"
-          }
-        >
-          Log in with google
-        </button>
-      </main>
-    );
-  }
 
   return (
     <main className={`${nunito.className} min-h-screen bg-gray-700 flex`}>
@@ -60,11 +28,11 @@ export default function AdminLayout({ children }: Props) {
             onClick={() => signOut()}
           >
             <img
-              src={session.user?.image!}
+              src={session?.user?.image!}
               className={"h-8 w-8 rounded-full"}
-              alt={session.user?.name!}
+              alt={session?.user?.name!}
             />
-            <p>{session.user?.name}</p>
+            <p>{session?.user?.name}</p>
           </div>
         </div>
       </div>

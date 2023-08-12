@@ -27,12 +27,11 @@ export default function AdminNav({ navigation }: Props) {
               key={navItem.url}
               href={navItem.url}
               className={
-                pathname.includes(navItem.url)
+                pathname === navItem.url
                   ? "activeAdminNavLink"
                   : "inactiveAdminNavLink"
               }
             >
-              {/* @ts-ignore */}
               <Icon className={"h-6"} /> {navItem.title}
             </Link>
           );

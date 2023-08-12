@@ -1,13 +1,7 @@
 import GoogleProvider from "next-auth/providers/google";
-import { FirestoreAdapter } from "@auth/firebase-adapter";
-import { cert } from "firebase-admin/app";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { getServerSession, Session } from "next-auth";
 import { getAdminUserByEmail } from "src/utils/firestore";
-
-const serviceAccount = JSON.parse(
-  process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string
-);
 
 const authOptions = {
   providers: [
@@ -16,9 +10,15 @@ const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
-  adapter: FirestoreAdapter({
-    credential: cert(serviceAccount),
-  }),
+  callbacks: {
+    async signIn({ account, profile }) {
+      return !!(
+        account?.provider === "google" &&
+        profile?.email_verified &&
+        profile?.email?.endsWith("@vusler.com")
+      );
+    },
+  },
 };
 
 export default authOptions;
@@ -28,9 +28,11 @@ export async function isAdminRequest(
   res: NextApiResponse
 ) {
   try {
-    const session: null | {
-      user: { email: string; name: string; image: string };
-    } = await getServerSession(req as any, res as any, authOptions as any);
+    const session: Session | null = await getServerSession(
+      req as any,
+      res as any,
+      authOptions as any
+    );
 
     if (!session) {
       throw new Error("User is not logged in");
